@@ -1,0 +1,165 @@
+tandaxn/
+├── .env.local                          # Environment variables (API keys, DB credentials)
+├── .env.example                        # Template for environment variables
+├── next.config.js                      # Next.js configuration
+├── tsconfig.json                       # TypeScript configuration
+├── tailwind.config.ts                  # Tailwind CSS configuration
+├── package.json                        # Dependencies
+├── prisma/
+│   ├── schema.prisma                   # Database schema (PostgreSQL)
+│   ├── migrations/                     # Database migration files
+│   └── seed.ts                         # Seed data for development
+│
+├── src/
+│   ├── app/                           # Next.js 14 App Router
+│   │   ├── layout.tsx                 # Root layout
+│   │   ├── page.tsx                   # Home page
+│   │   ├── globals.css                # Global styles + Tailwind imports
+│   │   │
+│   │   ├── (auth)/                    # Auth route group
+│   │   │   ├── login/
+│   │   │   ├── register/
+│   │   │   └── verify/
+│   │   │
+│   │   ├── (dashboard)/               # Protected dashboard routes
+│   │   │   ├── layout.tsx             # Dashboard layout with nav
+│   │   │   ├── overview/              # User dashboard
+│   │   │   ├── circles/               # Circle management
+│   │   │   │   ├── page.tsx           # List all circles
+│   │   │   │   ├── [circleId]/        # Individual circle
+│   │   │   │   └── create/            # Create new circle
+│   │   │   ├── payments/              # Payment history
+│   │   │   ├── wallet/                # User wallet
+│   │   │   ├── xnscore/               # Credit score dashboard
+│   │   │   └── profile/               # User profile
+│   │   │
+│   │   └── api/                       # API Routes
+│   │       ├── auth/
+│   │       │   ├── login/route.ts
+│   │       │   ├── register/route.ts
+│   │       │   ├── logout/route.ts
+│   │       │   └── session/route.ts
+│   │       │
+│   │       ├── circles/
+│   │       │   ├── route.ts           # GET all, POST create
+│   │       │   ├── [circleId]/
+│   │       │   │   ├── route.ts       # GET, PATCH, DELETE specific circle
+│   │       │   │   ├── join/route.ts  # POST join circle
+│   │       │   │   ├── leave/route.ts
+│   │       │   │   └── payout/route.ts
+│   │       │   └── eligible/route.ts  # GET circles user can join
+│   │       │
+│   │       ├── payments/
+│   │       │   ├── route.ts           # GET payment history
+│   │       │   ├── initiate/route.ts  # POST start payment
+│   │       │   ├── webhook/route.ts   # Webhook handler
+│   │       │   └── remittance/
+│   │       │       └── route.ts       # Cross-border transfers
+│   │       │
+│   │       ├── xnscore/
+│   │       │   ├── route.ts           # GET user score
+│   │       │   └── calculate/route.ts # POST recalculate score
+│   │       │
+│   │       ├── users/
+│   │       │   ├── [userId]/route.ts
+│   │       │   └── profile/route.ts
+│   │       │
+│   │       └── webhooks/
+│   │           ├── stripe/route.ts    # Stripe webhooks
+│   │           └── wise/route.ts      # Wise webhooks
+│   │
+│   ├── lib/                           # Core business logic & utilities
+│   │   ├── db.ts                      # Prisma client instance
+│   │   ├── auth.ts                    # Authentication utilities
+│   │   ├── session.ts                 # Session management
+│   │   │
+│   │   ├── circles/                   # Circle domain logic
+│   │   │   ├── circleService.ts       # Circle CRUD operations
+│   │   │   ├── payoutAlgorithm.ts     # Payout order logic (your hybrid algorithm)
+│   │   │   ├── riskAssessment.ts      # Circle risk scoring
+│   │   │   ├── memberManagement.ts    # Add/remove members
+│   │   │   └── circleValidation.ts    # Business rules validation
+│   │   │
+│   │   ├── payments/                  # Payment domain logic
+│   │   │   ├── paymentService.ts      # Payment orchestration
+│   │   │   ├── providers/             # Payment provider integrations
+│   │   │   │   ├── stripe.ts          # Stripe (simulated for now)
+│   │   │   │   ├── wise.ts            # Wise (simulated)
+│   │   │   │   ├── sendwave.ts        # Sendwave (simulated)
+│   │   │   │   └── paymentProvider.ts # Interface/abstract class
+│   │   │   ├── webhookHandler.ts      # Process payment webhooks
+│   │   │   └── remittanceService.ts   # Cross-border logic
+│   │   │
+│   │   ├── xnscore/                   # Credit scoring logic
+│   │   │   ├── scoreCalculator.ts     # XnScore V3.0 algorithm
+│   │   │   ├── scoringFactors.ts      # Individual factor calculations
+│   │   │   └── scoreHistory.ts        # Track score changes
+│   │   │
+│   │   ├── notifications/
+│   │   │   ├── emailService.ts        # Email notifications
+│   │   │   ├── smsService.ts          # SMS notifications
+│   │   │   └── pushService.ts         # Push notifications
+│   │   │
+│   │   └── utils/                     # Shared utilities
+│   │       ├── validation.ts          # Input validation
+│   │       ├── currency.ts            # Currency conversion
+│   │       ├── dates.ts               # Date utilities
+│   │       └── errors.ts              # Custom error classes
+│   │
+│   ├── components/                    # React components
+│   │   ├── ui/                        # Base UI components
+│   │   │   ├── button.tsx
+│   │   │   ├── card.tsx
+│   │   │   ├── input.tsx
+│   │   │   ├── modal.tsx
+│   │   │   └── ...
+│   │   │
+│   │   ├── circles/                   # Circle-specific components
+│   │   │   ├── CircleCard.tsx
+│   │   │   ├── CircleDetails.tsx
+│   │   │   ├── MemberList.tsx
+│   │   │   ├── PayoutSchedule.tsx
+│   │   │   └── JoinCircleForm.tsx
+│   │   │
+│   │   ├── payments/
+│   │   │   ├── PaymentForm.tsx
+│   │   │   ├── TransactionHistory.tsx
+│   │   │   └── WalletBalance.tsx
+│   │   │
+│   │   ├── xnscore/
+│   │   │   ├── ScoreDisplay.tsx
+│   │   │   ├── ScoreBreakdown.tsx
+│   │   │   └── ScoreHistory.tsx
+│   │   │
+│   │   └── layout/
+│   │       ├── Header.tsx
+│   │       ├── Sidebar.tsx
+│   │       └── Footer.tsx
+│   │
+│   ├── types/                         # TypeScript type definitions
+│   │   ├── circle.ts                  # Circle-related types
+│   │   ├── payment.ts                 # Payment types
+│   │   ├── user.ts                    # User types
+│   │   ├── xnscore.ts                 # Score types
+│   │   └── api.ts                     # API response types
+│   │
+│   ├── hooks/                         # Custom React hooks
+│   │   ├── useAuth.ts                 # Authentication hook
+│   │   ├── useCircle.ts               # Circle data hook
+│   │   ├── usePayments.ts             # Payment data hook
+│   │   └── useXnScore.ts              # Score data hook
+│   │
+│   └── middleware.ts                  # Next.js middleware (auth checks)
+│
+├── tests/                             # Test files
+│   ├── unit/
+│   │   ├── circles/
+│   │   ├── payments/
+│   │   └── xnscore/
+│   └── integration/
+│       └── api/
+│
+└── docs/                              # Documentation
+    ├── API.md                         # API documentation
+    ├── CIRCLE_LOGIC.md                # Circle algorithm docs
+    └── DEPLOYMENT.md                  # Deployment guide

@@ -1,0 +1,2774 @@
+// TandaXn Complete Prisma Schema - CORRECTED
+// Converted from PostgreSQL schema document
+// Prisma 7.2 syntax with all 42 tables
+// Documentation: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["postgresqlExtensions"]
+}
+
+datasource db {
+  provider   = "postgresql"
+  extensions = [uuidOssp(map: "uuid-ossp")]
+}
+
+// =====================================================
+// ENUMS
+// =====================================================
+
+enum AccountStatus {
+  active
+  suspended
+  banned
+  deactivated
+}
+
+enum VeriffStatus {
+  pending
+  approved
+  declined
+  resubmission_requested
+}
+
+enum VerificationStatus {
+  pending
+  processing
+  approved
+  declined
+  expired
+}
+
+enum VerificationType {
+  identity
+  bank_account
+  phone
+  email
+  address
+}
+
+enum ConnectionStatus {
+  pending
+  accepted
+  blocked
+  declined
+}
+
+enum GoalStatus {
+  active
+  achieved
+  abandoned
+  maintenance
+}
+
+enum GoalTransactionType {
+  deposit
+  circle_payout
+  auto_save
+  transfer
+  refund
+}
+
+enum GoalTransactionStatus {
+  pending
+  processing
+  completed
+  failed
+  refunded
+}
+
+enum GoalWithdrawalReason {
+  medical
+  car_repair
+  housing
+  job_loss
+  family
+  legal
+  vacation
+  shopping
+  entertainment
+  gifts
+  other
+}
+
+enum GoalWithdrawalStatus {
+  pending
+  processing
+  completed
+  failed
+  cancelled
+}
+
+enum GoalWithdrawalFeeType {
+  accountability_fee
+  early_withdrawal_penalty
+}
+
+enum GoalWithdrawalDeliveryMethod {
+  ach
+  instant
+}
+
+enum CircleStatus {
+  forming
+  active
+  completed
+  cancelled
+  suspended
+}
+
+enum CircleFrequency {
+  weekly
+  biweekly
+  monthly
+}
+
+enum PayoutOrderMethod {
+  hybrid_algorithm
+  random_lottery
+  fixed_order
+  bidding
+}
+
+enum CircleMemberStatus {
+  pending
+  active
+  suspended
+  exited
+  removed
+}
+
+enum CircleMemberRole {
+  creator
+  admin
+  co_admin
+  member
+}
+
+enum CirclePaymentStatus {
+  pending
+  processing
+  completed
+  failed
+  forgiven
+}
+
+enum CirclePayoutStatus {
+  scheduled
+  pending_approval
+  processing
+  completed
+  failed
+  cancelled
+}
+
+enum CirclePayoutDeliveryMethod {
+  ach
+  instant
+  goal_deposit
+}
+
+enum BankAccountType {
+  checking
+  savings
+  prepaid
+}
+
+enum BankAccountVerificationStatus {
+  pending
+  verified
+  failed
+  micro_deposits_sent
+}
+
+enum PaymentMethodType {
+  card
+  bank_account
+  digital_wallet
+}
+
+enum TransactionType {
+  goal_deposit
+  goal_withdrawal
+  circle_payment
+  circle_payout
+  fee
+  refund
+  transfer
+}
+
+enum TransactionStatus {
+  pending
+  processing
+  completed
+  failed
+  reversed
+}
+
+enum StripeTransferType {
+  payout
+  refund
+  reversal
+}
+
+enum StripeTransferStatus {
+  pending
+  in_transit
+  paid
+  failed
+  cancelled
+}
+
+enum PlaidConnectionStatus {
+  connected
+  requires_update
+  disconnected
+  error
+}
+
+enum RecurringPaymentType {
+  goal_auto_save
+  circle_contribution
+}
+
+enum ElderStatus {
+  active
+  inactive
+  suspended
+  resigned
+}
+
+enum ElderApplicationStatus {
+  pending
+  under_review
+  references_check
+  approved
+  rejected
+}
+
+enum DisputeType {
+  late_payment
+  payout_order
+  trust_violation
+  rule_breaking
+  harassment
+  other
+}
+
+enum DisputeSeverityLevel {
+  low
+  medium
+  high
+  critical
+}
+
+enum DisputeStatus {
+  filed
+  evidence_period
+  under_review
+  mediation_scheduled
+  mediation_in_progress
+  deliberation
+  ruling_issued
+  appealed
+  resolved
+  dismissed
+}
+
+enum DisputeEvidenceType {
+  screenshot
+  document
+  photo
+  video
+  chat_log
+  transaction_record
+  witness_statement
+}
+
+enum MediationSessionStatus {
+  scheduled
+  in_progress
+  completed
+  cancelled
+  no_show
+}
+
+enum DisputeRulingDecision {
+  dismissed
+  warning_issued
+  complainant_favor
+  respondent_favor
+  split_decision
+  settlement
+}
+
+enum DisputeRulingStatus {
+  issued
+  under_appeal
+  upheld
+  overturned
+  enforced
+}
+
+enum DisputeAppealGrounds {
+  new_evidence
+  procedural_error
+  bias_conflict
+  misinterpretation
+  excessive_penalty
+}
+
+enum DisputeAppealDecision {
+  upheld
+  overturned
+  modified
+}
+
+enum DisputeAppealStatus {
+  filed
+  under_review
+  decided
+  closed
+}
+
+enum MessageType {
+  text
+  image
+  file
+  voice
+  video
+}
+
+enum PostType {
+  general
+  goal_achievement
+  circle_completion
+  milestone
+  tip
+}
+
+enum PostVisibility {
+  public
+  friends
+  private
+}
+
+enum ReactionType {
+  like
+  love
+  laugh
+  wow
+  sad
+  angry
+}
+
+enum NotificationType {
+  payment_reminder
+  payout_received
+  goal_achieved
+  circle_invitation
+  message_received
+  dispute_filed
+  ruling_issued
+  friend_request
+}
+
+enum NotificationPriority {
+  low
+  normal
+  high
+  urgent
+}
+
+enum PrivacyVisibility {
+  everyone
+  friends
+  circles
+  no_one
+  city_only
+  exact
+  city
+  state
+  country
+  hidden
+}
+
+enum SupportTicketCategory {
+  account
+  payment
+  circle
+  goal
+  dispute
+  technical
+  other
+}
+
+enum SupportTicketPriority {
+  low
+  normal
+  high
+  urgent
+}
+
+enum SupportTicketStatus {
+  open
+  in_progress
+  waiting_on_customer
+  resolved
+  closed
+}
+
+enum KycRiskLevel {
+  low
+  medium
+  high
+  critical
+}
+
+enum ContributionStatus {
+  pending
+  processing
+  completed
+  failed
+  late
+  forgiven
+}
+
+enum PayoutStatus {
+  scheduled
+  processing
+  completed
+  failed
+  cancelled
+}
+
+enum LoanStatus {
+  pending
+  approved
+  active
+  paid_off
+  defaulted
+  cancelled
+}
+
+// =====================================================
+// CORE USER SYSTEM TABLES
+// =====================================================
+
+model User {
+  // Primary Key
+  id String @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+
+  // Authentication
+  phoneNumber     String    @unique @map("phone_number") @db.VarChar(20)
+  phoneVerified   Boolean   @default(false) @map("phone_verified")
+  phoneVerifiedAt DateTime? @map("phone_verified_at")
+
+  email           String?   @unique @db.VarChar(255)
+  emailVerified   Boolean   @default(false) @map("email_verified")
+  emailVerifiedAt DateTime? @map("email_verified_at")
+
+  passwordHash String? @map("password_hash") @db.VarChar(255)
+  pinHash      String? @map("pin_hash") @db.VarChar(255)
+
+  // Personal Information
+  firstName   String   @map("first_name") @db.VarChar(100)
+  lastName    String   @map("last_name") @db.VarChar(100)
+  dateOfBirth DateTime @map("date_of_birth") @db.Date
+
+  // KYC/Verification
+  ssnLast4     String? @map("ssn_last_4") @db.VarChar(4)
+  ssnEncrypted String? @map("ssn_encrypted")
+
+  veriffStatus     VeriffStatus @default(pending) @map("veriff_status")
+  veriffSessionId  String?      @map("veriff_session_id") @db.VarChar(255)
+  veriffVerifiedAt DateTime?    @map("veriff_verified_at")
+
+  // Profile
+  username        String? @unique @db.VarChar(50)
+  bio             String?
+  profilePhotoUrl String? @map("profile_photo_url")
+  locationCity    String? @map("location_city") @db.VarChar(100)
+  locationState   String? @map("location_state") @db.VarChar(50)
+  locationCountry String  @default("United States") @map("location_country") @db.VarChar(50)
+
+  // XnScore
+  xnScore          Decimal  @default(5.00) @map("xn_score") @db.Decimal(3, 2)
+  xnScoreUpdatedAt DateTime @default(now()) @map("xn_score_updated_at")
+
+  // Status & Roles
+  accountStatus       AccountStatus @default(active) @map("account_status")
+  accountStatusReason String?       @map("account_status_reason")
+
+  isElder    Boolean   @default(false) @map("is_elder")
+  elderSince DateTime? @map("elder_since")
+
+  isAdmin   Boolean @default(false) @map("is_admin")
+  adminRole String? @map("admin_role") @db.VarChar(50)
+
+  // Preferences
+  preferredLanguage String @default("en") @map("preferred_language") @db.VarChar(10)
+  preferredCurrency String @default("USD") @map("preferred_currency") @db.VarChar(3)
+  timezone          String @default("America/New_York") @db.VarChar(50)
+
+  // Security
+  twoFactorEnabled Boolean @default(false) @map("two_factor_enabled")
+  twoFactorMethod  String? @map("two_factor_method") @db.VarChar(20)
+  biometricEnabled Boolean @default(false) @map("biometric_enabled")
+
+  lastLoginAt     DateTime? @map("last_login_at")
+  lastLoginIp     String?   @map("last_login_ip") @db.Inet
+  lastLoginDevice String?   @map("last_login_device")
+
+  // Metadata
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @default(now()) @updatedAt @map("updated_at")
+  deletedAt DateTime? @map("deleted_at")
+
+  // Relations
+  sessions                  UserSession[]
+  verifications             UserVerification[]
+  profile                   UserProfile?
+  connectionsAsUser         UserConnection[]     @relation("UserConnections")
+  connectionsAsConnected    UserConnection[]     @relation("ConnectedToUser")
+  connectionsInitiated      UserConnection[]     @relation("ConnectionInitiator")
+  xnScoreHistory            XnScoreHistory[]
+  goals                     Goal[]
+  goalTransactions          GoalTransaction[]
+  goalWithdrawals           GoalWithdrawal[]
+  goalTierChanges           GoalTierChange[]
+  createdCircles            Circle[]             @relation("CircleCreator")
+  circleMemberships         CircleMember[]
+  circleMemberInviters      CircleMember[]       @relation("CircleMemberInviter")
+  circleMemberSuspenders    CircleMember[]       @relation("CircleMemberSuspender")
+  circleMemberRemovers      CircleMember[]       @relation("CircleMemberRemover")
+  circleInvitationsSent     CircleInvitation[]   @relation("Inviter")
+  circleInvitationsReceived CircleInvitation[]   @relation("InviteeUser")
+  circlePayments            CirclePayment[]
+  circlePaymentForgivers    CirclePayment[]      @relation("CirclePaymentForgiver")
+  circlePayoutsReceived     CirclePayout[]
+  circleTemplatesCreated    CircleTemplate[]     @relation("TemplateCreator")
+  circleChatMessages        CircleChatMessage[]
+  circleChatDeleters        CircleChatMessage[]  @relation("MessageDeleter")
+  payoutOrdersGenerated     CirclePayoutOrder[]  @relation("PayoutOrderGenerator")
+  bankAccounts              BankAccount[]
+  paymentMethods            PaymentMethod[]
+  transactions              Transaction[]
+  stripeTransfers           StripeTransfer[]
+  plaidConnections          PlaidConnection[]
+  recurringPayments         RecurringPayment[]
+  elderProfile              Elder?
+  elderSuspensions          Elder[]              @relation("ElderSuspender")
+  elderApplication          ElderApplication?
+  elderApplicationReviewer  ElderApplication[]   @relation("ElderApplicationReviewer")
+  disputesAsComplainant     Dispute[]            @relation("DisputeComplainant")
+  disputesAsRespondent      Dispute[]            @relation("DisputeRespondent")
+  disputeEvidence           DisputeEvidence[]
+  disputeEvidenceWitness    DisputeEvidence[]    @relation("DisputeEvidenceWitness")
+  disputeEvidenceVerifier   DisputeEvidence[]    @relation("DisputeEvidenceVerifier")
+  disputeAppeals            DisputeAppeal[]      @relation("DisputeAppealAppealingParty")
+  conversationsAsUser1      Conversation[]       @relation("User1")
+  conversationsAsUser2      Conversation[]       @relation("User2")
+  messagesSent              Message[]            @relation("MessageSender")
+  posts                     Post[]
+  postHider                 Post[]               @relation("PostHider")
+  comments                  Comment[]
+  reactions                 Reaction[]
+  notifications             Notification[]
+  privacySettings           PrivacySetting?
+  privacyLogs               PrivacyLog[]
+  profileViewsAsViewer      ProfileView[]        @relation("Viewer")
+  profileViewsAsViewed      ProfileView[]        @relation("ViewedUser")
+  auditLogs                 AuditLog[]
+  auditLogsAsAdmin          AuditLog[]           @relation("AuditLogAdmin")
+  supportTickets            SupportTicket[]
+  supportTicketsAssigned    SupportTicket[]      @relation("SupportTicketAssigned")
+  supportTicketsResolved    SupportTicket[]      @relation("SupportTicketResolver")
+  walletsOwned              Wallet[]
+  xnScores                  XnScore[]
+  xnScoreFactors            XnScoreFactor[]
+  remittancesSent           RemittanceTransfer[] @relation("RemittanceSender")
+  remittancesReceived       RemittanceTransfer[] @relation("RemittanceRecipient")
+  withdrawalRequests        WithdrawalRequest[]
+  contributionsMade         Contribution[]
+  payoutsReceived           Payout[]
+  loansAsBorrower           Loan[]               @relation("LoanBorrower")
+  loansApproved             Loan[]               @relation("LoanApprover")
+  providerAccounts          ProviderAccount[]
+  kycRecords                UserKyc[]
+  kycVerifications          UserKyc[]            @relation("KycVerifier")
+
+  @@index([phoneNumber])
+  @@index([email])
+  @@index([username])
+  @@index([xnScore(sort: Desc)])
+  @@index([accountStatus])
+  @@index([isElder])
+  @@index([createdAt(sort: Desc)])
+  @@map("users")
+}
+
+model UserProfile {
+  userId String @id @map("user_id") @db.Uuid
+
+  // Extended Profile
+  interests  String[]
+  occupation String?  @db.VarChar(255)
+  employer   String?  @db.VarChar(255)
+
+  // Social Links
+  linkedinUrl  String? @map("linkedin_url") @db.VarChar(255)
+  facebookUrl  String? @map("facebook_url") @db.VarChar(255)
+  twitterUrl   String? @map("twitter_url") @db.VarChar(255)
+  instagramUrl String? @map("instagram_url") @db.VarChar(255)
+
+  // Community
+  communityGroups String[] @map("community_groups")
+  languagesSpoken String[] @map("languages_spoken")
+
+  // Statistics (denormalized for performance)
+  totalGoalsCreated     Int     @default(0) @map("total_goals_created")
+  totalGoalsAchieved    Int     @default(0) @map("total_goals_achieved")
+  totalCirclesJoined    Int     @default(0) @map("total_circles_joined")
+  totalCirclesCompleted Int     @default(0) @map("total_circles_completed")
+  totalAmountSaved      Decimal @default(0.00) @map("total_amount_saved") @db.Decimal(12, 2)
+
+  // Achievements
+  badges            Json @default("[]")
+  achievementLevel  Int  @default(1) @map("achievement_level")
+  achievementPoints Int  @default(0) @map("achievement_points")
+
+  // Preferences
+  notificationPreferences Json @default("{}") @map("notification_preferences")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([communityGroups], type: Gin)
+  @@index([badges], type: Gin)
+  @@map("user_profiles")
+}
+
+model UserKyc {
+  id                           String             @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  userId                       String             @unique @map("user_id") @db.Uuid
+  verificationStatus           VerificationStatus @default(pending) @map("verification_status")
+  riskLevel                    KycRiskLevel       @default(medium) @map("risk_level")
+  idType                       String?            @map("id_type") @db.VarChar(50)
+  idNumber                     String?            @map("id_number") @db.VarChar(100)
+  idCountry                    String?            @map("id_country") @db.VarChar(3)
+  idExpiryDate                 DateTime?          @map("id_expiry_date") @db.Date
+  idDocumentFrontUrl           String?            @map("id_document_front_url")
+  idDocumentBackUrl            String?            @map("id_document_back_url")
+  selfieUrl                    String?            @map("selfie_url")
+  proofOfAddressUrl            String?            @map("proof_of_address_url")
+  verificationDate             DateTime?          @map("verification_date")
+  verifiedBy                   String?            @map("verified_by") @db.Uuid
+  rejectionReason              String?            @map("rejection_reason")
+  notes                        String?
+  plaidIdentityVerificationId  String?            @map("plaid_identity_verification_id") @db.VarChar(255)
+  stripeIdentityVerificationId String?            @map("stripe_identity_verification_id") @db.VarChar(255)
+  createdAt                    DateTime           @default(now()) @map("created_at")
+  updatedAt                    DateTime           @default(now()) @updatedAt @map("updated_at")
+  createdBy                    String?            @map("created_by") @db.Uuid
+  updatedBy                    String?            @map("updated_by") @db.Uuid
+
+  user     User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  verifier User? @relation("KycVerifier", fields: [verifiedBy], references: [id])
+
+  @@index([userId])
+  @@index([verificationStatus])
+  @@index([riskLevel])
+  @@map("user_kyc")
+}
+
+model UserSession {
+  id     String @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  userId String @map("user_id") @db.Uuid
+
+  // Session Info
+  sessionToken String  @unique @map("session_token") @db.VarChar(255)
+  refreshToken String? @unique @map("refresh_token") @db.VarChar(255)
+
+  // Device Info
+  deviceType String? @map("device_type") @db.VarChar(50)
+  deviceName String? @map("device_name")
+  deviceId   String? @map("device_id") @db.VarChar(255)
+
+  ipAddress String? @map("ip_address") @db.Inet
+  userAgent String? @map("user_agent")
+
+  // Location
+  locationCity    String? @map("location_city") @db.VarChar(100)
+  locationCountry String? @map("location_country") @db.VarChar(50)
+
+  // Session Status
+  isActive       Boolean  @default(true) @map("is_active")
+  lastActivityAt DateTime @default(now()) @map("last_activity_at")
+
+  expiresAt     DateTime  @map("expires_at")
+  revokedAt     DateTime? @map("revoked_at")
+  revokedReason String?   @map("revoked_reason") @db.VarChar(255)
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([sessionToken])
+  @@index([isActive, expiresAt])
+  @@map("user_sessions")
+}
+
+model UserVerification {
+  id     String @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  userId String @map("user_id") @db.Uuid
+
+  // Verification Type
+  verificationType VerificationType @map("verification_type")
+
+  // Veriff Specific
+  veriffVerificationId String? @map("veriff_verification_id") @db.VarChar(255)
+  veriffSessionUrl     String? @map("veriff_session_url")
+
+  // Document Info
+  documentType            String? @map("document_type") @db.VarChar(50)
+  documentNumberEncrypted String? @map("document_number_encrypted")
+  documentFrontUrl        String? @map("document_front_url")
+  documentBackUrl         String? @map("document_back_url")
+  selfieUrl               String? @map("selfie_url")
+
+  // Status
+  status        VerificationStatus @default(pending)
+  declineReason String?            @map("decline_reason")
+
+  verifiedAt DateTime? @map("verified_at")
+  expiresAt  DateTime? @map("expires_at")
+
+  // Metadata
+  ipAddress String? @map("ip_address") @db.Inet
+  userAgent String? @map("user_agent")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([status])
+  @@index([verificationType])
+  @@map("user_verification")
+}
+
+model UserConnection {
+  id String @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+
+  userId          String @map("user_id") @db.Uuid
+  connectedUserId String @map("connected_user_id") @db.Uuid
+
+  // Connection Status
+  status ConnectionStatus @default(pending)
+
+  // Who initiated
+  initiatedBy String @map("initiated_by") @db.Uuid
+
+  // Timestamps
+  requestedAt DateTime  @default(now()) @map("requested_at")
+  respondedAt DateTime? @map("responded_at")
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user          User @relation("UserConnections", fields: [userId], references: [id], onDelete: Cascade)
+  connectedUser User @relation("ConnectedToUser", fields: [connectedUserId], references: [id], onDelete: Cascade)
+  initiator     User @relation("ConnectionInitiator", fields: [initiatedBy], references: [id])
+
+  @@unique([userId, connectedUserId])
+  @@index([userId])
+  @@index([connectedUserId])
+  @@index([status])
+  @@map("user_connections")
+}
+
+model XnScoreHistory {
+  id     String @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  userId String @map("user_id") @db.Uuid
+
+  // Score Change
+  previousScore Decimal @map("previous_score") @db.Decimal(3, 2)
+  newScore      Decimal @map("new_score") @db.Decimal(3, 2)
+  changeAmount  Decimal @map("change_amount") @db.Decimal(3, 2)
+
+  // Reason
+  changeReason String @map("change_reason") @db.VarChar(255)
+
+  relatedEntityType String? @map("related_entity_type") @db.VarChar(50)
+  relatedEntityId   String? @map("related_entity_id") @db.Uuid
+
+  // Calculation Details
+  calculationDetails Json? @map("calculation_details")
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt(sort: Desc)])
+  @@index([changeReason])
+  @@map("xnscore_history")
+}
+
+// =====================================================
+// GOALS SYSTEM TABLES
+// =====================================================
+
+model Goal {
+  id     String @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  userId String @map("user_id") @db.Uuid
+
+  // Basic Information
+  name           String    @db.VarChar(100)
+  description    String?
+  targetAmount   Decimal   @map("target_amount") @db.Decimal(10, 2)
+  currentBalance Decimal   @default(0.00) @map("current_balance") @db.Decimal(10, 2)
+  targetDate     DateTime? @map("target_date") @db.Date
+
+  // Tier System (3-Tier)
+  tier          Int       @default(2)
+  tierChangedAt DateTime? @map("tier_changed_at")
+  previousTier  Int?      @map("previous_tier")
+
+  // Auto-save Settings
+  autoSaveEnabled   Boolean   @default(false) @map("auto_save_enabled")
+  autoSaveAmount    Decimal?  @map("auto_save_amount") @db.Decimal(10, 2)
+  autoSaveFrequency String?   @map("auto_save_frequency") @db.VarChar(20)
+  autoSaveDay       Int?      @map("auto_save_day")
+  nextAutoSaveDate  DateTime? @map("next_auto_save_date") @db.Date
+
+  // Status Management
+  status          GoalStatus @default(active)
+  achievedAt      DateTime?  @map("achieved_at")
+  abandonedAt     DateTime?  @map("abandoned_at")
+  abandonedReason String?    @map("abandoned_reason")
+
+  // Progress Tracking
+  totalDeposited  Decimal @default(0.00) @map("total_deposited") @db.Decimal(10, 2)
+  totalWithdrawn  Decimal @default(0.00) @map("total_withdrawn") @db.Decimal(10, 2)
+  totalFeesPaid   Decimal @default(0.00) @map("total_fees_paid") @db.Decimal(10, 2)
+  depositCount    Int     @default(0) @map("deposit_count")
+  withdrawalCount Int     @default(0) @map("withdrawal_count")
+
+  // Metadata
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+
+  user              User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  goalTransactions  GoalTransaction[]
+  withdrawals       GoalWithdrawal[]
+  tierChanges       GoalTierChange[]
+  circlePayouts     CirclePayout[]
+  transfersFrom     GoalTransaction[]  @relation("GoalTransfers")
+  recurringPayments RecurringPayment[]
+  taggedPosts       Post[]
+  transactions      Transaction[]
+
+  @@index([userId])
+  @@index([tier])
+  @@index([status])
+  @@index([autoSaveEnabled, nextAutoSaveDate])
+  @@index([createdAt(sort: Desc)])
+  @@map("goals")
+}
+
+model GoalTransaction {
+  id     String @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  goalId String @map("goal_id") @db.Uuid
+  userId String @map("user_id") @db.Uuid
+
+  type   GoalTransactionType
+  amount Decimal             @db.Decimal(10, 2)
+
+  sourceType String? @map("source_type") @db.VarChar(50)
+  sourceId   String? @map("source_id") @db.Uuid
+
+  fromGoalId String? @map("from_goal_id") @db.Uuid
+
+  paymentMethodId       String? @map("payment_method_id") @db.Uuid
+  stripePaymentIntentId String? @map("stripe_payment_intent_id") @db.VarChar(255)
+
+  status        GoalTransactionStatus @default(pending)
+  failureReason String?               @map("failure_reason")
+
+  createdAt   DateTime  @default(now()) @map("created_at")
+  processedAt DateTime? @map("processed_at")
+  completedAt DateTime? @map("completed_at")
+
+  description String?
+  metadata    Json?
+
+  goal     Goal  @relation(fields: [goalId], references: [id], onDelete: Cascade)
+  user     User  @relation(fields: [userId], references: [id])
+  fromGoal Goal? @relation("GoalTransfers", fields: [fromGoalId], references: [id])
+
+  @@index([goalId])
+  @@index([userId])
+  @@index([type])
+  @@index([status])
+  @@index([createdAt(sort: Desc)])
+  @@map("goal_transactions")
+}
+
+model GoalWithdrawal {
+  id     String @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  goalId String @map("goal_id") @db.Uuid
+  userId String @map("user_id") @db.Uuid
+
+  amount        Decimal              @db.Decimal(10, 2)
+  reason        GoalWithdrawalReason
+  reasonDetails String?              @map("reason_details")
+
+  feeAmount Decimal                @default(0.00) @map("fee_amount") @db.Decimal(10, 2)
+  feeType   GoalWithdrawalFeeType? @map("fee_type")
+  netAmount Decimal                @map("net_amount") @db.Decimal(10, 2)
+
+  goalTier           Int      @map("goal_tier")
+  goalBalanceBefore  Decimal  @map("goal_balance_before") @db.Decimal(10, 2)
+  goalBalanceAfter   Decimal  @map("goal_balance_after") @db.Decimal(10, 2)
+  goalProgressBefore Decimal? @map("goal_progress_before") @db.Decimal(5, 2)
+  goalProgressAfter  Decimal? @map("goal_progress_after") @db.Decimal(5, 2)
+
+  status GoalWithdrawalStatus @default(pending)
+
+  bankAccountId    String? @map("bank_account_id") @db.Uuid
+  stripeTransferId String? @map("stripe_transfer_id") @db.VarChar(255)
+
+  deliveryMethod       GoalWithdrawalDeliveryMethod @default(ach) @map("delivery_method")
+  expectedDeliveryDate DateTime?                    @map("expected_delivery_date") @db.Date
+  actualDeliveryDate   DateTime?                    @map("actual_delivery_date") @db.Date
+
+  failureReason String? @map("failure_reason")
+  failureCode   String? @map("failure_code") @db.VarChar(50)
+  retryCount    Int     @default(0) @map("retry_count")
+
+  requestedAt         DateTime  @default(now()) @map("requested_at")
+  approvedAt          DateTime? @map("approved_at")
+  processingStartedAt DateTime? @map("processing_started_at")
+  completedAt         DateTime? @map("completed_at")
+  cancelledAt         DateTime? @map("cancelled_at")
+
+  ipAddress  String? @map("ip_address") @db.Inet
+  userAgent  String? @map("user_agent")
+  deviceInfo Json?   @map("device_info")
+
+  adminApprovedBy    String? @map("admin_approved_by") @db.Uuid
+  adminApprovalNotes String? @map("admin_approval_notes")
+
+  goal        Goal         @relation(fields: [goalId], references: [id], onDelete: Cascade)
+  user        User         @relation(fields: [userId], references: [id])
+  bankAccount BankAccount? @relation(fields: [bankAccountId], references: [id])
+
+  @@index([goalId])
+  @@index([userId])
+  @@index([status])
+  @@index([requestedAt(sort: Desc)])
+  @@index([reason])
+  @@index([feeType])
+  @@map("goal_withdrawals")
+}
+
+model GoalTierChange {
+  id     String @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  goalId String @map("goal_id") @db.Uuid
+  userId String @map("user_id") @db.Uuid
+
+  fromTier Int @map("from_tier")
+  toTier   Int @map("to_tier")
+
+  reason           String?
+  balanceAtChange  Decimal  @map("balance_at_change") @db.Decimal(10, 2)
+  progressAtChange Decimal? @map("progress_at_change") @db.Decimal(5, 2)
+
+  userConfirmed    Boolean @default(false) @map("user_confirmed")
+  confirmationText String? @map("confirmation_text")
+
+  changedAt DateTime @default(now()) @map("changed_at")
+
+  goal Goal @relation(fields: [goalId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id])
+
+  @@index([goalId])
+  @@index([userId])
+  @@index([changedAt(sort: Desc)])
+  @@map("goal_tier_changes")
+}
+
+// =====================================================
+// CIRCLES SYSTEM TABLES
+// =====================================================
+
+model Circle {
+  id        String @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  creatorId String @map("creator_id") @db.Uuid
+
+  name        String  @db.VarChar(150)
+  description String?
+  category    String? @db.VarChar(50)
+
+  contributionAmount    Decimal         @map("contribution_amount") @db.Decimal(10, 2)
+  contributionFrequency CircleFrequency @map("contribution_frequency")
+
+  totalRounds  Int @map("total_rounds")
+  currentRound Int @default(0) @map("current_round")
+
+  startDate       DateTime  @map("start_date") @db.Date
+  expectedEndDate DateTime? @map("expected_end_date") @db.Date
+  actualEndDate   DateTime? @map("actual_end_date") @db.Date
+
+  maxMembers         Int @map("max_members")
+  currentMemberCount Int @default(0) @map("current_member_count")
+
+  minXnscore              Decimal @default(0.00) @map("min_xnscore") @db.Decimal(3, 2)
+  requireIdentityVerified Boolean @default(true) @map("require_identity_verified")
+  requireBankVerified     Boolean @default(true) @map("require_bank_verified")
+
+  payoutOrderMethod PayoutOrderMethod @default(hybrid_algorithm) @map("payout_order_method")
+  payoutDayOfPeriod Int?              @map("payout_day_of_period")
+
+  latePaymentFeePercentage Decimal @default(5.00) @map("late_payment_fee_percentage") @db.Decimal(5, 2)
+  latePaymentGraceDays     Int     @default(3) @map("late_payment_grace_days")
+
+  allowEarlyExit             Boolean @default(false) @map("allow_early_exit")
+  earlyExitPenaltyPercentage Decimal @default(0.00) @map("early_exit_penalty_percentage") @db.Decimal(5, 2)
+
+  customRules String? @map("custom_rules")
+
+  isPublic            Boolean @default(false) @map("is_public")
+  memberVisibility    String  @default("members_only") @map("member_visibility") @db.VarChar(20)
+  financialVisibility String  @default("members_only") @map("financial_visibility") @db.VarChar(20)
+
+  status       CircleStatus @default(forming)
+  statusReason String?      @map("status_reason")
+
+  healthScore Decimal @default(100.00) @map("health_score") @db.Decimal(5, 2)
+
+  totalCollected    Decimal @default(0.00) @map("total_collected") @db.Decimal(12, 2)
+  totalPaidOut      Decimal @default(0.00) @map("total_paid_out") @db.Decimal(12, 2)
+  totalLatePayments Int     @default(0) @map("total_late_payments")
+  totalDisputes     Int     @default(0) @map("total_disputes")
+
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @default(now()) @updatedAt @map("updated_at")
+  completedAt DateTime? @map("completed_at")
+
+  creator           User                   @relation("CircleCreator", fields: [creatorId], references: [id])
+  members           CircleMember[]
+  payments          CirclePayment[]
+  payouts           CirclePayout[]
+  payoutOrders      CirclePayoutOrder[]
+  invitations       CircleInvitation[]
+  chatMessages      CircleChatMessage[]
+  transactions      Transaction[]
+  disputes          Dispute[]
+  recurringPayments RecurringPayment[]
+  contributions     Contribution[]
+  standardPayouts   Payout[]
+  circleRules       CircleRules?
+  riskAssessments   CircleRiskAssessment[]
+  taggedPosts       Post[]
+  loans             Loan[]
+
+  @@index([creatorId])
+  @@index([status])
+  @@index([category])
+  @@index([isPublic])
+  @@index([startDate])
+  @@index([healthScore])
+  @@index([createdAt(sort: Desc)])
+  @@map("circles")
+}
+
+model CircleMember {
+  id       String @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  circleId String @map("circle_id") @db.Uuid
+  userId   String @map("user_id") @db.Uuid
+
+  status CircleMemberStatus @default(pending)
+  role   CircleMemberRole   @default(member)
+
+  invitedBy            String?   @map("invited_by") @db.Uuid
+  invitationSentAt     DateTime? @map("invitation_sent_at")
+  invitationAcceptedAt DateTime? @map("invitation_accepted_at")
+
+  joinedAt DateTime? @map("joined_at")
+
+  payoutPosition   Int?      @map("payout_position")
+  payoutReceived   Boolean   @default(false) @map("payout_received")
+  payoutReceivedAt DateTime? @map("payout_received_at")
+  payoutAmount     Decimal?  @map("payout_amount") @db.Decimal(10, 2)
+
+  totalPaymentsMade Int     @default(0) @map("total_payments_made")
+  totalPaymentsDue  Int     @default(0) @map("total_payments_due")
+  totalAmountPaid   Decimal @default(0.00) @map("total_amount_paid") @db.Decimal(10, 2)
+
+  totalLatePayments Int     @default(0) @map("total_late_payments")
+  totalLateFeesPaid Decimal @default(0.00) @map("total_late_fees_paid") @db.Decimal(10, 2)
+
+  currentPaymentStatus String @default("current") @map("current_payment_status") @db.VarChar(20)
+
+  xnscoreAtJoin Decimal? @map("xnscore_at_join") @db.Decimal(3, 2)
+
+  suspendedAt     DateTime? @map("suspended_at")
+  suspendedReason String?   @map("suspended_reason")
+  suspendedBy     String?   @map("suspended_by") @db.Uuid
+
+  removedAt     DateTime? @map("removed_at")
+  removedReason String?   @map("removed_reason")
+  removedBy     String?   @map("removed_by") @db.Uuid
+
+  exitedAt        DateTime? @map("exited_at")
+  exitReason      String?   @map("exit_reason")
+  earlyExit       Boolean   @default(false) @map("early_exit")
+  exitPenaltyPaid Decimal?  @map("exit_penalty_paid") @db.Decimal(10, 2)
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+
+  circle        Circle          @relation(fields: [circleId], references: [id], onDelete: Cascade)
+  user          User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  inviter       User?           @relation("CircleMemberInviter", fields: [invitedBy], references: [id])
+  suspender     User?           @relation("CircleMemberSuspender", fields: [suspendedBy], references: [id])
+  remover       User?           @relation("CircleMemberRemover", fields: [removedBy], references: [id])
+  payments      CirclePayment[]
+  payouts       CirclePayout[]
+  contributions Contribution[]
+
+  @@unique([circleId, userId])
+  @@index([circleId])
+  @@index([userId])
+  @@index([status])
+  @@index([role])
+  @@index([circleId, payoutPosition])
+  @@map("circle_members")
+}
+
+model CirclePayment {
+  id       String @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  circleId String @map("circle_id") @db.Uuid
+  memberId String @map("member_id") @db.Uuid
+  userId   String @map("user_id") @db.Uuid
+
+  roundNumber Int     @map("round_number")
+  amount      Decimal @db.Decimal(10, 2)
+
+  dueDate  DateTime  @map("due_date") @db.Date
+  paidDate DateTime? @map("paid_date") @db.Date
+
+  isLate   Boolean @default(false) @map("is_late")
+  daysLate Int     @default(0) @map("days_late")
+  lateFee  Decimal @default(0.00) @map("late_fee") @db.Decimal(10, 2)
+
+  status CirclePaymentStatus @default(pending)
+
+  paymentMethodId String? @map("payment_method_id") @db.Uuid
+
+  stripePaymentIntentId String? @map("stripe_payment_intent_id") @db.VarChar(255)
+  stripeTransferId      String? @map("stripe_transfer_id") @db.VarChar(255)
+
+  failureReason String? @map("failure_reason")
+  retryCount    Int     @default(0) @map("retry_count")
+
+  forgivenBy     String?   @map("forgiven_by") @db.Uuid
+  forgivenAt     DateTime? @map("forgiven_at")
+  forgivenReason String?   @map("forgiven_reason")
+
+  createdAt   DateTime  @default(now()) @map("created_at")
+  processedAt DateTime? @map("processed_at")
+  completedAt DateTime? @map("completed_at")
+
+  metadata Json?
+
+  circle        Circle         @relation(fields: [circleId], references: [id], onDelete: Cascade)
+  member        CircleMember   @relation(fields: [memberId], references: [id], onDelete: Cascade)
+  user          User           @relation(fields: [userId], references: [id])
+  paymentMethod PaymentMethod? @relation(fields: [paymentMethodId], references: [id])
+  forgiver      User?          @relation("CirclePaymentForgiver", fields: [forgivenBy], references: [id])
+
+  @@index([circleId])
+  @@index([memberId])
+  @@index([userId])
+  @@index([status])
+  @@index([circleId, roundNumber])
+  @@index([dueDate])
+  @@index([isLate])
+  @@map("circle_payments")
+}
+
+model CirclePayout {
+  id                String @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  circleId          String @map("circle_id") @db.Uuid
+  recipientMemberId String @map("recipient_member_id") @db.Uuid
+  recipientUserId   String @map("recipient_user_id") @db.Uuid
+
+  roundNumber  Int     @map("round_number")
+  payoutAmount Decimal @map("payout_amount") @db.Decimal(10, 2)
+
+  scheduledDate DateTime  @map("scheduled_date") @db.Date
+  processedDate DateTime? @map("processed_date") @db.Date
+
+  bankAccountId String? @map("bank_account_id") @db.Uuid
+  goalId        String? @map("goal_id") @db.Uuid
+
+  deliveryMethod CirclePayoutDeliveryMethod @default(ach) @map("delivery_method")
+
+  status CirclePayoutStatus @default(scheduled)
+
+  stripeTransferId String? @map("stripe_transfer_id") @db.VarChar(255)
+  stripePayoutId   String? @map("stripe_payout_id") @db.VarChar(255)
+
+  failureReason String? @map("failure_reason")
+  retryCount    Int     @default(0) @map("retry_count")
+
+  requiresApproval Boolean   @default(false) @map("requires_approval")
+  approvedBy       String?   @map("approved_by") @db.Uuid
+  approvedAt       DateTime? @map("approved_at")
+
+  createdAt           DateTime  @default(now()) @map("created_at")
+  processingStartedAt DateTime? @map("processing_started_at")
+  completedAt         DateTime? @map("completed_at")
+  cancelledAt         DateTime? @map("cancelled_at")
+
+  metadata Json?
+
+  circle          Circle       @relation(fields: [circleId], references: [id], onDelete: Cascade)
+  recipientMember CircleMember @relation(fields: [recipientMemberId], references: [id])
+  recipientUser   User         @relation(fields: [recipientUserId], references: [id])
+  bankAccount     BankAccount? @relation(fields: [bankAccountId], references: [id])
+  goal            Goal?        @relation(fields: [goalId], references: [id])
+
+  @@index([circleId])
+  @@index([recipientUserId])
+  @@index([status])
+  @@index([scheduledDate])
+  @@index([circleId, roundNumber])
+  @@map("circle_payouts")
+}
+
+model CirclePayoutOrder {
+  id       String @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  circleId String @map("circle_id") @db.Uuid
+
+  generationMethod PayoutOrderMethod @map("generation_method")
+
+  generatedAt DateTime @default(now()) @map("generated_at")
+  generatedBy String?  @map("generated_by") @db.Uuid
+
+  payoutOrder Json @map("payout_order")
+
+  algorithmVersion   String? @map("algorithm_version") @db.VarChar(20)
+  calculationDetails Json?   @map("calculation_details")
+
+  isActive   Boolean @default(true) @map("is_active")
+  replacedBy String? @map("replaced_by") @db.Uuid
+
+  changeRequests Json? @map("change_requests")
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  circle    Circle @relation(fields: [circleId], references: [id], onDelete: Cascade)
+  generator User?  @relation("PayoutOrderGenerator", fields: [generatedBy], references: [id])
+
+  @@index([circleId])
+  @@index([isActive])
+  @@map("circle_payout_orders")
+}
+
+model CircleInvitation {
+  id       String @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  circleId String @map("circle_id") @db.Uuid
+
+  invitedBy     String  @map("invited_by") @db.Uuid
+  invitedUserId String? @map("invited_user_id") @db.Uuid
+
+  invitedEmail String? @map("invited_email") @db.VarChar(255)
+  invitedPhone String? @map("invited_phone") @db.VarChar(20)
+
+  invitationMessage String? @map("invitation_message")
+  invitationToken   String  @unique @map("invitation_token") @db.VarChar(255)
+
+  status String @default("pending") @db.VarChar(20)
+
+  respondedAt     DateTime? @map("responded_at")
+  responseMessage String?   @map("response_message")
+
+  expiresAt DateTime @map("expires_at")
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  circle      Circle @relation(fields: [circleId], references: [id], onDelete: Cascade)
+  inviter     User   @relation("Inviter", fields: [invitedBy], references: [id])
+  inviteeUser User?  @relation("InviteeUser", fields: [invitedUserId], references: [id])
+
+  @@index([circleId])
+  @@index([invitedBy])
+  @@index([invitedUserId])
+  @@index([status])
+  @@index([invitationToken])
+  @@map("circle_invitations")
+}
+
+model CircleTemplate {
+  id String @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+
+  name        String  @db.VarChar(150)
+  description String?
+  category    String? @db.VarChar(50)
+
+  templateConfig Json @map("template_config")
+
+  createdBy  String? @map("created_by") @db.Uuid
+  isOfficial Boolean @default(false) @map("is_official")
+
+  usageCount Int @default(0) @map("usage_count")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+
+  creator User? @relation("TemplateCreator", fields: [createdBy], references: [id])
+
+  @@index([category])
+  @@index([isOfficial])
+  @@map("circle_templates")
+}
+
+model CircleChatMessage {
+  id       String @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  circleId String @map("circle_id") @db.Uuid
+  senderId String @map("sender_id") @db.Uuid
+
+  messageType String @default("text") @map("message_type") @db.VarChar(20)
+
+  content String?
+
+  mediaUrl       String? @map("media_url")
+  mediaType      String? @map("media_type") @db.VarChar(50)
+  mediaSizeBytes Int?    @map("media_size_bytes")
+
+  isSystemMessage Boolean @default(false) @map("is_system_message")
+  systemEventType String? @map("system_event_type") @db.VarChar(50)
+
+  replyToMessageId String? @map("reply_to_message_id") @db.Uuid
+
+  isDeleted Boolean   @default(false) @map("is_deleted")
+  deletedAt DateTime? @map("deleted_at")
+  deletedBy String?   @map("deleted_by") @db.Uuid
+
+  createdAt DateTime  @default(now()) @map("created_at")
+  editedAt  DateTime? @map("edited_at")
+
+  reactionCounts Json @default("{}") @map("reaction_counts")
+
+  circle         Circle              @relation(fields: [circleId], references: [id], onDelete: Cascade)
+  sender         User                @relation(fields: [senderId], references: [id])
+  replyToMessage CircleChatMessage?  @relation("MessageReply", fields: [replyToMessageId], references: [id])
+  replies        CircleChatMessage[] @relation("MessageReply")
+  deleter        User?               @relation("MessageDeleter", fields: [deletedBy], references: [id])
+
+  @@index([circleId, createdAt(sort: Desc)])
+  @@index([senderId])
+  @@index([messageType])
+  @@map("circle_chat_messages")
+}
+
+model CircleRules {
+  id                         String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  circleId                   String   @unique @map("circle_id") @db.Uuid
+  allowEarlyPayout           Boolean  @default(false) @map("allow_early_payout")
+  earlyPayoutFeePercent      Decimal  @default(10.00) @map("early_payout_fee_percent") @db.Decimal(5, 2)
+  allowLateJoining           Boolean  @default(false) @map("allow_late_joining")
+  requireDeposit             Boolean  @default(false) @map("require_deposit")
+  depositAmount              Decimal? @map("deposit_amount") @db.Decimal(12, 2)
+  maxMissedPayments          Int      @default(2) @map("max_missed_payments")
+  autoRemoveDefaulters       Boolean  @default(true) @map("auto_remove_defaulters")
+  allowMemberLoans           Boolean  @default(false) @map("allow_member_loans")
+  maxLoanToContributionRatio Decimal  @default(2.00) @map("max_loan_to_contribution_ratio") @db.Decimal(5, 2)
+  customRules                Json?    @map("custom_rules")
+  createdAt                  DateTime @default(now()) @map("created_at")
+  updatedAt                  DateTime @default(now()) @updatedAt @map("updated_at")
+  createdBy                  String?  @map("created_by") @db.Uuid
+  updatedBy                  String?  @map("updated_by") @db.Uuid
+
+  circle Circle @relation(fields: [circleId], references: [id], onDelete: Cascade)
+
+  @@map("circle_rules")
+}
+
+model CircleRiskAssessment {
+  id                 String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  circleId           String   @map("circle_id") @db.Uuid
+  assessmentDate     DateTime @default(now()) @map("assessment_date")
+  overallRiskScore   Decimal? @map("overall_risk_score") @db.Decimal(5, 2)
+  defaultProbability Decimal? @map("default_probability") @db.Decimal(5, 4)
+  avgMemberXnScore   Decimal? @map("avg_member_xn_score") @db.Decimal(6, 2)
+  totalValueAtRisk   Decimal? @map("total_value_at_risk") @db.Decimal(12, 2)
+  concentrationRisk  Decimal? @map("concentration_risk") @db.Decimal(5, 2)
+  liquidityRisk      Decimal? @map("liquidity_risk") @db.Decimal(5, 2)
+  assessmentDetails  Json?    @map("assessment_details")
+  createdAt          DateTime @default(now()) @map("created_at")
+  createdBy          String?  @map("created_by") @db.Uuid
+
+  circle Circle @relation(fields: [circleId], references: [id], onDelete: Cascade)
+
+  @@index([circleId])
+  @@index([assessmentDate])
+  @@map("circle_risk_assessments")
+}
+
+// =====================================================
+// FINANCIAL INFRASTRUCTURE TABLES
+// =====================================================
+
+model Wallet {
+  id                String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  userId            String    @unique @map("user_id") @db.Uuid
+  availableBalance  Decimal   @default(0.00) @map("available_balance") @db.Decimal(12, 2)
+  pendingBalance    Decimal   @default(0.00) @map("pending_balance") @db.Decimal(12, 2)
+  totalContributed  Decimal   @default(0.00) @map("total_contributed") @db.Decimal(12, 2)
+  totalReceived     Decimal   @default(0.00) @map("total_received") @db.Decimal(12, 2)
+  currency          String    @default("USD") @db.VarChar(3)
+  lastTransactionAt DateTime? @map("last_transaction_at")
+  createdAt         DateTime  @default(now()) @map("created_at")
+  updatedAt         DateTime  @default(now()) @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("wallets")
+}
+
+model Transaction {
+  id     String @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  userId String @map("user_id") @db.Uuid
+
+  transactionType     TransactionType @map("transaction_type")
+  transactionCategory String?         @map("transaction_category") @db.VarChar(50)
+
+  amount    Decimal @db.Decimal(12, 2)
+  feeAmount Decimal @default(0.00) @map("fee_amount") @db.Decimal(10, 2)
+  netAmount Decimal @map("net_amount") @db.Decimal(12, 2)
+
+  currency String @default("USD") @db.VarChar(3)
+
+  relatedEntityType String? @map("related_entity_type") @db.VarChar(50)
+  relatedEntityId   String? @map("related_entity_id") @db.Uuid
+
+  goalId   String? @map("goal_id") @db.Uuid
+  circleId String? @map("circle_id") @db.Uuid
+
+  paymentMethodId String? @map("payment_method_id") @db.Uuid
+  bankAccountId   String? @map("bank_account_id") @db.Uuid
+
+  stripeTransactionId String? @map("stripe_transaction_id") @db.VarChar(255)
+  stripeChargeId      String? @map("stripe_charge_id") @db.VarChar(255)
+  stripeTransferId    String? @map("stripe_transfer_id") @db.VarChar(255)
+
+  plaidTransactionId String? @map("plaid_transaction_id") @db.VarChar(255)
+
+  status TransactionStatus @default(pending)
+
+  failureReason String? @map("failure_reason")
+
+  transactionDate DateTime  @default(now()) @map("transaction_date")
+  processedAt     DateTime? @map("processed_at")
+  completedAt     DateTime? @map("completed_at")
+
+  description String?
+
+  metadata Json?
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user                  User                         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  goal                  Goal?                        @relation(fields: [goalId], references: [id])
+  circle                Circle?                      @relation(fields: [circleId], references: [id])
+  paymentMethod         PaymentMethod?               @relation(fields: [paymentMethodId], references: [id])
+  bankAccount           BankAccount?                 @relation(fields: [bankAccountId], references: [id])
+  providerTransactions  PaymentProviderTransaction[]
+  contributions         Contribution[]
+  payouts               Payout[]
+  withdrawalRequests    WithdrawalRequest[]
+  remittanceTransfers   RemittanceTransfer[]
+  loanPayments          LoanPayment[]
+  loansFromDisbursement Loan[]                       @relation("LoanDisbursement")
+  loansLinked           Loan[]                       @relation("TransactionLoan")
+
+  @@index([userId, transactionDate(sort: Desc)])
+  @@index([transactionType])
+  @@index([status])
+  @@index([goalId])
+  @@index([circleId])
+  @@index([transactionDate(sort: Desc)])
+  @@index([stripeTransactionId])
+  @@map("transactions")
+}
+
+model Contribution {
+  id                String             @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  circleId          String             @map("circle_id") @db.Uuid
+  memberId          String             @map("member_id") @db.Uuid
+  userId            String             @map("user_id") @db.Uuid
+  cycleNumber       Int                @map("cycle_number")
+  amount            Decimal            @db.Decimal(12, 2)
+  dueDate           DateTime           @map("due_date") @db.Date
+  paidDate          DateTime?          @map("paid_date")
+  status            ContributionStatus @default(pending)
+  lateFee           Decimal            @default(0.00) @map("late_fee") @db.Decimal(12, 2)
+  transactionId     String?            @map("transaction_id") @db.Uuid
+  paymentMethodId   String?            @map("payment_method_id") @db.Uuid
+  autoPaymentFailed Boolean            @default(false) @map("auto_payment_failed")
+  reminderSentCount Int                @default(0) @map("reminder_sent_count")
+  createdAt         DateTime           @default(now()) @map("created_at")
+  updatedAt         DateTime           @default(now()) @updatedAt @map("updated_at")
+
+  circle        Circle         @relation(fields: [circleId], references: [id], onDelete: Cascade)
+  member        CircleMember   @relation(fields: [memberId], references: [id], onDelete: Cascade)
+  user          User           @relation(fields: [userId], references: [id])
+  transaction   Transaction?   @relation(fields: [transactionId], references: [id])
+  paymentMethod PaymentMethod? @relation(fields: [paymentMethodId], references: [id])
+
+  @@index([circleId])
+  @@index([userId])
+  @@index([dueDate])
+  @@index([status])
+  @@map("contributions")
+}
+
+model Payout {
+  id            String       @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  circleId      String       @map("circle_id") @db.Uuid
+  recipientId   String       @map("recipient_id") @db.Uuid
+  amount        Decimal      @db.Decimal(12, 2)
+  status        PayoutStatus @default(scheduled)
+  scheduledDate DateTime     @map("scheduled_date") @db.Date
+  processedDate DateTime?    @map("processed_date")
+  transactionId String?      @map("transaction_id") @db.Uuid
+  createdAt     DateTime     @default(now()) @map("created_at")
+  updatedAt     DateTime     @default(now()) @updatedAt @map("updated_at")
+
+  circle      Circle       @relation(fields: [circleId], references: [id], onDelete: Cascade)
+  recipient   User         @relation(fields: [recipientId], references: [id])
+  transaction Transaction? @relation(fields: [transactionId], references: [id])
+
+  @@index([circleId])
+  @@index([recipientId])
+  @@index([status])
+  @@map("payouts")
+}
+
+model PaymentMethod {
+  id     String @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  userId String @map("user_id") @db.Uuid
+
+  methodType PaymentMethodType @default(card) @map("method_type")
+
+  stripePaymentMethodId String  @unique @map("stripe_payment_method_id") @db.VarChar(255)
+  stripeCustomerId      String? @map("stripe_customer_id") @db.VarChar(255)
+
+  cardBrand    String? @map("card_brand") @db.VarChar(20)
+  cardLast4    String? @map("card_last_4") @db.VarChar(4)
+  cardExpMonth Int?    @map("card_exp_month")
+  cardExpYear  Int?    @map("card_exp_year")
+
+  cardFingerprint String? @map("card_fingerprint") @db.VarChar(255)
+
+  billingName         String? @map("billing_name") @db.VarChar(255)
+  billingAddressLine1 String? @map("billing_address_line1") @db.VarChar(255)
+  billingAddressLine2 String? @map("billing_address_line2") @db.VarChar(255)
+  billingCity         String? @map("billing_city") @db.VarChar(100)
+  billingState        String? @map("billing_state") @db.VarChar(50)
+  billingPostalCode   String? @map("billing_postal_code") @db.VarChar(20)
+  billingCountry      String? @default("US") @map("billing_country") @db.VarChar(50)
+
+  isDefault Boolean @default(false) @map("is_default")
+  isActive  Boolean @default(true) @map("is_active")
+
+  isVerified         Boolean   @default(false) @map("is_verified")
+  verificationAmount Decimal?  @map("verification_amount") @db.Decimal(4, 2)
+  verifiedAt         DateTime? @map("verified_at")
+
+  lastUsedAt DateTime? @map("last_used_at")
+  usageCount Int       @default(0) @map("usage_count")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+
+  user               User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  circlePayments     CirclePayment[]
+  transactions       Transaction[]
+  recurringPayments  RecurringPayment[]
+  contributions      Contribution[]
+  withdrawalRequests WithdrawalRequest[]
+
+  @@index([userId])
+  @@index([stripePaymentMethodId])
+  @@index([isDefault])
+  @@map("payment_methods")
+}
+
+model BankAccount {
+  id     String @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  userId String @map("user_id") @db.Uuid
+
+  plaidAccessTokenEncrypted String? @map("plaid_access_token_encrypted")
+  plaidAccountId            String  @map("plaid_account_id") @db.VarChar(255)
+  plaidItemId               String? @map("plaid_item_id") @db.VarChar(255)
+
+  accountName    String?          @map("account_name") @db.VarChar(255)
+  accountType    BankAccountType? @map("account_type")
+  accountSubtype String?          @map("account_subtype") @db.VarChar(50)
+
+  institutionName String? @map("institution_name") @db.VarChar(255)
+  institutionId   String? @map("institution_id") @db.VarChar(255)
+
+  accountMask String? @map("account_mask") @db.VarChar(4)
+
+  accountNumberEncrypted String? @map("account_number_encrypted")
+  routingNumberEncrypted String? @map("routing_number_encrypted")
+
+  verificationStatus BankAccountVerificationStatus @default(pending) @map("verification_status")
+  verificationMethod String?                       @map("verification_method") @db.VarChar(50)
+
+  verifiedAt DateTime? @map("verified_at")
+
+  microDepositAmount1    Decimal?  @map("micro_deposit_amount_1") @db.Decimal(4, 2)
+  microDepositAmount2    Decimal?  @map("micro_deposit_amount_2") @db.Decimal(4, 2)
+  microDepositAttempts   Int       @default(0) @map("micro_deposit_attempts")
+  microDepositVerifiedAt DateTime? @map("micro_deposit_verified_at")
+
+  isPrimary Boolean @default(false) @map("is_primary")
+  isActive  Boolean @default(true) @map("is_active")
+
+  deactivatedAt     DateTime? @map("deactivated_at")
+  deactivatedReason String?   @map("deactivated_reason")
+
+  availableBalance   Decimal?  @map("available_balance") @db.Decimal(12, 2)
+  currentBalance     Decimal?  @map("current_balance") @db.Decimal(12, 2)
+  balanceLastUpdated DateTime? @map("balance_last_updated")
+
+  canWithdraw Boolean @default(true) @map("can_withdraw")
+  canDeposit  Boolean @default(true) @map("can_deposit")
+
+  plaidConnectionId String? @unique @map("plaid_connection_id") @db.Uuid
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+
+  user              User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  goalWithdrawals   GoalWithdrawal[]
+  circlePayouts     CirclePayout[]
+  transactions      Transaction[]
+  plaidConnection   PlaidConnection?   @relation(fields: [plaidConnectionId], references: [id])
+  recurringPayments RecurringPayment[]
+
+  @@index([userId])
+  @@index([plaidAccountId])
+  @@index([isPrimary])
+  @@index([isActive])
+  @@index([plaidConnectionId])
+  @@map("bank_accounts")
+}
+
+model RemittanceTransfer {
+  id                       String            @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  senderId                 String            @map("sender_id") @db.Uuid
+  recipientId              String?           @map("recipient_id") @db.Uuid
+  recipientExternalAccount String?           @map("recipient_external_account") @db.VarChar(255)
+  fromCountry              String            @map("from_country") @db.VarChar(3)
+  toCountry                String            @map("to_country") @db.VarChar(3)
+  sendAmount               Decimal           @map("send_amount") @db.Decimal(12, 2)
+  sendCurrency             String            @map("send_currency") @db.VarChar(3)
+  receiveAmount            Decimal           @map("receive_amount") @db.Decimal(12, 2)
+  receiveCurrency          String            @map("receive_currency") @db.VarChar(3)
+  exchangeRate             Decimal           @map("exchange_rate") @db.Decimal(12, 6)
+  transferFee              Decimal           @map("transfer_fee") @db.Decimal(12, 2)
+  provider                 String?           @db.VarChar(50)
+  providerReference        String?           @map("provider_reference") @db.VarChar(255)
+  status                   TransactionStatus @default(pending)
+  transactionId            String?           @map("transaction_id") @db.Uuid
+  createdAt                DateTime          @default(now()) @map("created_at")
+  updatedAt                DateTime          @default(now()) @updatedAt @map("updated_at")
+
+  sender      User         @relation("RemittanceSender", fields: [senderId], references: [id])
+  recipient   User?        @relation("RemittanceRecipient", fields: [recipientId], references: [id])
+  transaction Transaction? @relation(fields: [transactionId], references: [id])
+
+  @@index([senderId])
+  @@index([recipientId])
+  @@index([fromCountry, toCountry])
+  @@map("remittance_transfers")
+}
+
+model WithdrawalRequest {
+  id              String            @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  userId          String            @map("user_id") @db.Uuid
+  amount          Decimal           @db.Decimal(12, 2)
+  currency        String            @default("USD") @db.VarChar(3)
+  destinationType String            @map("destination_type") @db.VarChar(20)
+  paymentMethodId String?           @map("payment_method_id") @db.Uuid
+  status          TransactionStatus @default(pending)
+  processedAt     DateTime?         @map("processed_at")
+  transactionId   String?           @map("transaction_id") @db.Uuid
+  notes           String?
+  createdAt       DateTime          @default(now()) @map("created_at")
+  updatedAt       DateTime          @default(now()) @updatedAt @map("updated_at")
+
+  user          User           @relation(fields: [userId], references: [id])
+  paymentMethod PaymentMethod? @relation(fields: [paymentMethodId], references: [id])
+  transaction   Transaction?   @relation(fields: [transactionId], references: [id])
+
+  @@index([userId])
+  @@index([status])
+  @@map("withdrawal_requests")
+}
+
+model RecurringPayment {
+  id     String @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  userId String @map("user_id") @db.Uuid
+
+  paymentType RecurringPaymentType @map("payment_type")
+
+  goalId   String? @map("goal_id") @db.Uuid
+  circleId String? @map("circle_id") @db.Uuid
+
+  amount          Decimal @db.Decimal(10, 2)
+  paymentMethodId String  @map("payment_method_id") @db.Uuid
+  bankAccountId   String? @map("bank_account_id") @db.Uuid
+
+  frequency    String @db.VarChar(20)
+  frequencyDay Int?   @map("frequency_day")
+
+  startDate       DateTime  @map("start_date") @db.Date
+  endDate         DateTime? @map("end_date") @db.Date
+  nextPaymentDate DateTime  @map("next_payment_date") @db.Date
+  lastPaymentDate DateTime? @map("last_payment_date") @db.Date
+
+  isActive    Boolean   @default(true) @map("is_active")
+  paused      Boolean   @default(false)
+  pausedUntil DateTime? @map("paused_until") @db.Date
+
+  consecutiveFailures Int     @default(0) @map("consecutive_failures")
+  lastFailureReason   String? @map("last_failure_reason")
+
+  totalPaymentsMade Int     @default(0) @map("total_payments_made")
+  totalAmountPaid   Decimal @default(0.00) @map("total_amount_paid") @db.Decimal(12, 2)
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+
+  user          User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  goal          Goal?         @relation(fields: [goalId], references: [id])
+  circle        Circle?       @relation(fields: [circleId], references: [id])
+  paymentMethod PaymentMethod @relation(fields: [paymentMethodId], references: [id])
+  bankAccount   BankAccount?  @relation(fields: [bankAccountId], references: [id])
+
+  @@index([userId])
+  @@index([nextPaymentDate])
+  @@index([goalId, paymentType])
+  @@index([circleId, paymentType])
+  @@map("recurring_payments")
+}
+
+model StripeTransfer {
+  id String @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+
+  transactionId String? @map("transaction_id") @db.Uuid
+  userId        String  @map("user_id") @db.Uuid
+
+  stripeTransferId         String? @unique @map("stripe_transfer_id") @db.VarChar(255)
+  stripeDestinationAccount String? @map("stripe_destination_account") @db.VarChar(255)
+  stripeSourceTransaction  String? @map("stripe_source_transaction") @db.VarChar(255)
+
+  transferType StripeTransferType @map("transfer_type")
+  amount       Decimal            @db.Decimal(12, 2)
+  currency     String             @default("USD") @db.VarChar(3)
+
+  status StripeTransferStatus @default(pending)
+
+  failureCode    String? @map("failure_code") @db.VarChar(100)
+  failureMessage String? @map("failure_message")
+
+  expectedArrivalDate DateTime? @map("expected_arrival_date") @db.Date
+  actualArrivalDate   DateTime? @map("actual_arrival_date") @db.Date
+
+  stripeMetadata Json? @map("stripe_metadata")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([transactionId])
+  @@index([stripeTransferId])
+  @@index([status])
+  @@map("stripe_transfers")
+}
+
+model PlaidConnection {
+  id     String @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  userId String @map("user_id") @db.Uuid
+
+  plaidItemId               String @unique @map("plaid_item_id") @db.VarChar(255)
+  plaidAccessTokenEncrypted String @map("plaid_access_token_encrypted")
+
+  institutionId   String? @map("institution_id") @db.VarChar(255)
+  institutionName String? @map("institution_name") @db.VarChar(255)
+
+  status PlaidConnectionStatus @default(connected)
+
+  errorType    String? @map("error_type") @db.VarChar(100)
+  errorCode    String? @map("error_code") @db.VarChar(100)
+  errorMessage String? @map("error_message")
+
+  lastSuccessfulSync DateTime? @map("last_successful_sync")
+  lastSyncAttempt    DateTime? @map("last_sync_attempt")
+  syncErrorCount     Int       @default(0) @map("sync_error_count")
+
+  webhookCode String? @map("webhook_code") @db.VarChar(100)
+
+  plaidMetadata Json? @map("plaid_metadata")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+
+  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  bankAccount BankAccount?
+
+  @@index([userId])
+  @@index([plaidItemId])
+  @@index([status])
+  @@map("plaid_connections")
+}
+
+// =====================================================
+// CREDIT SCORING (XnScore)
+// =====================================================
+
+model XnScore {
+  id        String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  userId    String   @map("user_id") @db.Uuid
+  score     Int
+  scoreDate DateTime @default(now()) @map("score_date")
+  version   String   @default("v3.0") @db.VarChar(10)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user    User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  factors XnScoreFactor[]
+
+  @@index([userId])
+  @@index([scoreDate])
+  @@map("xn_scores")
+}
+
+model XnScoreFactor {
+  id                       String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  xnScoreId                String   @map("xn_score_id") @db.Uuid
+  userId                   String   @map("user_id") @db.Uuid
+  paymentHistoryScore      Decimal? @map("payment_history_score") @db.Decimal(5, 2)
+  circleParticipationScore Decimal? @map("circle_participation_score") @db.Decimal(5, 2)
+  accountAgeScore          Decimal? @map("account_age_score") @db.Decimal(5, 2)
+  circleCompletionScore    Decimal? @map("circle_completion_score") @db.Decimal(5, 2)
+  defaultHistoryScore      Decimal? @map("default_history_score") @db.Decimal(5, 2)
+  loanRepaymentScore       Decimal? @map("loan_repayment_score") @db.Decimal(5, 2)
+  totalCirclesJoined       Int      @default(0) @map("total_circles_joined")
+  totalCirclesCompleted    Int      @default(0) @map("total_circles_completed")
+  totalContributions       Int      @default(0) @map("total_contributions")
+  missedContributions      Int      @default(0) @map("missed_contributions")
+  lateContributions        Int      @default(0) @map("late_contributions")
+  totalAmountContributed   Decimal  @default(0.00) @map("total_amount_contributed") @db.Decimal(12, 2)
+  accountAgeDays           Int      @default(0) @map("account_age_days")
+  createdAt                DateTime @default(now()) @map("created_at")
+
+  xnScore XnScore @relation(fields: [xnScoreId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id])
+
+  @@index([xnScoreId])
+  @@index([userId])
+  @@map("xn_score_factors")
+}
+
+// =====================================================
+// PAYMENT PROVIDERS
+// =====================================================
+
+model PaymentProviderTransaction {
+  id                    String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  transactionId         String    @map("transaction_id") @db.Uuid
+  provider              String    @db.VarChar(50)
+  providerTransactionId String    @map("provider_transaction_id") @db.VarChar(255)
+  providerStatus        String?   @map("provider_status") @db.VarChar(50)
+  providerResponse      Json?     @map("provider_response")
+  amount                Decimal   @db.Decimal(12, 2)
+  currency              String    @db.VarChar(3)
+  feeAmount             Decimal?  @map("fee_amount") @db.Decimal(12, 2)
+  processedAt           DateTime? @map("processed_at")
+  isTestMode            Boolean   @default(true) @map("is_test_mode")
+  createdAt             DateTime  @default(now()) @map("created_at")
+  updatedAt             DateTime  @default(now()) @updatedAt @map("updated_at")
+
+  transaction Transaction @relation(fields: [transactionId], references: [id])
+
+  @@index([transactionId])
+  @@index([providerTransactionId])
+  @@index([provider])
+  @@map("payment_provider_transactions")
+}
+
+model WebhookEvent {
+  id              String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  provider        String    @db.VarChar(50)
+  eventType       String    @map("event_type") @db.VarChar(100)
+  eventId         String    @unique @map("event_id") @db.VarChar(255)
+  payload         Json
+  processed       Boolean   @default(false)
+  processedAt     DateTime? @map("processed_at")
+  processingError String?   @map("processing_error")
+  retryCount      Int       @default(0) @map("retry_count")
+  createdAt       DateTime  @default(now()) @map("created_at")
+
+  @@index([provider])
+  @@index([processed])
+  @@index([eventType])
+  @@map("webhook_events")
+}
+
+model ProviderAccount {
+  id                 String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  userId             String   @map("user_id") @db.Uuid
+  provider           String   @db.VarChar(50)
+  providerCustomerId String   @map("provider_customer_id") @db.VarChar(255)
+  providerAccountId  String?  @map("provider_account_id") @db.VarChar(255)
+  accountStatus      String?  @map("account_status") @db.VarChar(50)
+  metadata           Json?
+  isTestAccount      Boolean  @default(true) @map("is_test_account")
+  createdAt          DateTime @default(now()) @map("created_at")
+  updatedAt          DateTime @default(now()) @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, provider])
+  @@index([userId])
+  @@index([provider])
+  @@map("provider_accounts")
+}
+
+// =====================================================
+// LOANS & CREDIT
+// =====================================================
+
+model Loan {
+  id                        String     @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  userId                    String     @map("user_id") @db.Uuid
+  circleId                  String?    @map("circle_id") @db.Uuid
+  amount                    Decimal    @db.Decimal(12, 2)
+  currency                  String     @default("USD") @db.VarChar(3)
+  interestRate              Decimal    @map("interest_rate") @db.Decimal(5, 2)
+  termMonths                Int        @map("term_months")
+  status                    LoanStatus @default(pending)
+  disbursementDate          DateTime?  @map("disbursement_date") @db.Date
+  firstPaymentDate          DateTime?  @map("first_payment_date") @db.Date
+  maturityDate              DateTime?  @map("maturity_date") @db.Date
+  outstandingBalance        Decimal?   @map("outstanding_balance") @db.Decimal(12, 2)
+  totalPaid                 Decimal    @default(0.00) @map("total_paid") @db.Decimal(12, 2)
+  approvedBy                String?    @map("approved_by") @db.Uuid
+  disbursementTransactionId String?    @map("disbursement_transaction_id") @db.Uuid
+  createdAt                 DateTime   @default(now()) @map("created_at")
+  updatedAt                 DateTime   @default(now()) @updatedAt @map("updated_at")
+  createdBy                 String?    @map("created_by") @db.Uuid
+
+  user                    User          @relation("LoanBorrower", fields: [userId], references: [id])
+  circle                  Circle?       @relation(fields: [circleId], references: [id])
+  approver                User?         @relation("LoanApprover", fields: [approvedBy], references: [id])
+  disbursementTransaction Transaction?  @relation("LoanDisbursement", fields: [disbursementTransactionId], references: [id])
+  linkedTransactions      Transaction[] @relation("TransactionLoan")
+  payments                LoanPayment[]
+
+  @@index([userId])
+  @@index([circleId])
+  @@index([status])
+  @@map("loans")
+}
+
+model LoanPayment {
+  id              String             @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  loanId          String             @map("loan_id") @db.Uuid
+  paymentNumber   Int                @map("payment_number")
+  dueDate         DateTime           @map("due_date") @db.Date
+  amountDue       Decimal            @map("amount_due") @db.Decimal(12, 2)
+  principalAmount Decimal            @map("principal_amount") @db.Decimal(12, 2)
+  interestAmount  Decimal            @map("interest_amount") @db.Decimal(12, 2)
+  paidDate        DateTime?          @map("paid_date")
+  amountPaid      Decimal?           @map("amount_paid") @db.Decimal(12, 2)
+  status          ContributionStatus @default(pending)
+  transactionId   String?            @map("transaction_id") @db.Uuid
+  createdAt       DateTime           @default(now()) @map("created_at")
+  updatedAt       DateTime           @default(now()) @updatedAt @map("updated_at")
+
+  loan        Loan         @relation(fields: [loanId], references: [id], onDelete: Cascade)
+  transaction Transaction? @relation(fields: [transactionId], references: [id])
+
+  @@index([loanId])
+  @@index([dueDate])
+  @@index([status])
+  @@map("loan_payments")
+}
+
+// =====================================================
+// ELDER/DISPUTE SYSTEM TABLES
+// =====================================================
+
+model Elder {
+  userId String @id @map("user_id") @db.Uuid
+
+  status ElderStatus @default(active)
+
+  appointedAt DateTime @default(now()) @map("appointed_at")
+
+  suspendedAt     DateTime? @map("suspended_at")
+  suspendedReason String?   @map("suspended_reason")
+  suspendedBy     String?   @map("suspended_by") @db.Uuid
+
+  resignedAt        DateTime? @map("resigned_at")
+  resignationReason String?   @map("resignation_reason")
+
+  totalCasesHandled Int @default(0) @map("total_cases_handled")
+  totalCasesActive  Int @default(0) @map("total_cases_active")
+
+  totalRulingsMade     Int @default(0) @map("total_rulings_made")
+  totalAppealsReceived Int @default(0) @map("total_appeals_received")
+  totalAppealsUpheld   Int @default(0) @map("total_appeals_upheld")
+
+  averageRating Decimal @default(0.00) @map("average_rating") @db.Decimal(3, 2)
+  totalRatings  Int     @default(0) @map("total_ratings")
+
+  elderScore Decimal @default(100.00) @map("elder_score") @db.Decimal(5, 2)
+
+  specializations String[]
+
+  totalEarnings Decimal @default(0.00) @map("total_earnings") @db.Decimal(10, 2)
+
+  notes String?
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+
+  user              User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  suspender         User?              @relation("ElderSuspender", fields: [suspendedBy], references: [id])
+  disputesAssigned  Dispute[]
+  mediationSessions MediationSession[]
+  disputeRulings    DisputeRuling[]
+  disputeAppeals    DisputeAppeal[]    @relation("DisputeAppealReviewElder")
+
+  @@index([status])
+  @@index([elderScore(sort: Desc)])
+  @@index([specializations], type: Gin)
+  @@map("elders")
+}
+
+model ElderApplication {
+  id     String @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  userId String @unique @map("user_id") @db.Uuid
+
+  applicationText            String  @map("application_text")
+  relevantExperience         String? @map("relevant_experience")
+  conflictResolutionApproach String? @map("conflict_resolution_approach")
+
+  references Json?
+
+  ageRequirementMet      Boolean? @map("age_requirement_met")
+  xnscoreRequirementMet  Boolean? @map("xnscore_requirement_met")
+  circlesRequirementMet  Boolean? @map("circles_requirement_met")
+  disputesRequirementMet Boolean? @map("disputes_requirement_met")
+
+  status ElderApplicationStatus @default(pending)
+
+  rejectionReason String? @map("rejection_reason")
+
+  reviewedBy  String?   @map("reviewed_by") @db.Uuid
+  reviewedAt  DateTime? @map("reviewed_at")
+  reviewNotes String?   @map("review_notes")
+
+  submittedAt DateTime @default(now()) @map("submitted_at")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @default(now()) @updatedAt @map("updated_at")
+
+  user     User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  reviewer User? @relation("ElderApplicationReviewer", fields: [reviewedBy], references: [id])
+
+  @@index([userId])
+  @@index([status])
+  @@index([submittedAt(sort: Desc)])
+  @@map("elder_applications")
+}
+
+model Dispute {
+  id String @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+
+  complainantId String @map("complainant_id") @db.Uuid
+  respondentId  String @map("respondent_id") @db.Uuid
+
+  disputeType   DisputeType          @map("dispute_type")
+  severityLevel DisputeSeverityLevel @default(medium) @map("severity_level")
+
+  relatedEntityType String? @map("related_entity_type") @db.VarChar(50)
+  relatedEntityId   String? @map("related_entity_id") @db.Uuid
+
+  circleId String? @map("circle_id") @db.Uuid
+
+  title       String @db.VarChar(255)
+  description String
+
+  incidentDate        DateTime? @map("incident_date") @db.Date
+  requestedResolution String?   @map("requested_resolution")
+
+  assignedElderId String?   @map("assigned_elder_id") @db.Uuid
+  assignedAt      DateTime? @map("assigned_at")
+
+  status DisputeStatus @default(filed)
+
+  resolutionSummary String?   @map("resolution_summary")
+  resolutionDate    DateTime? @map("resolution_date")
+
+  evidenceDeadline     DateTime? @map("evidence_deadline")
+  mediationScheduledAt DateTime? @map("mediation_scheduled_at")
+
+  estimatedResolutionDate DateTime? @map("estimated_resolution_date") @db.Date
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+
+  complainant       User               @relation("DisputeComplainant", fields: [complainantId], references: [id])
+  respondent        User               @relation("DisputeRespondent", fields: [respondentId], references: [id])
+  circle            Circle?            @relation(fields: [circleId], references: [id])
+  assignedElder     Elder?             @relation(fields: [assignedElderId], references: [userId])
+  evidence          DisputeEvidence[]
+  mediationSessions MediationSession[]
+  rulings           DisputeRuling[]
+  appeals           DisputeAppeal[]
+
+  @@index([complainantId])
+  @@index([respondentId])
+  @@index([assignedElderId])
+  @@index([circleId])
+  @@index([status])
+  @@index([createdAt(sort: Desc)])
+  @@map("disputes")
+}
+
+model DisputeEvidence {
+  id        String @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  disputeId String @map("dispute_id") @db.Uuid
+
+  submittedBy String @map("submitted_by") @db.Uuid
+
+  evidenceType DisputeEvidenceType @map("evidence_type")
+
+  title       String? @db.VarChar(255)
+  description String?
+
+  fileUrl       String? @map("file_url")
+  fileType      String? @map("file_type") @db.VarChar(100)
+  fileSizeBytes Int?    @map("file_size_bytes")
+
+  textContent String? @map("text_content")
+
+  witnessUserId       String? @map("witness_user_id") @db.Uuid
+  witnessName         String? @map("witness_name") @db.VarChar(255)
+  witnessRelationship String? @map("witness_relationship") @db.VarChar(100)
+
+  isVerified Boolean   @default(false) @map("is_verified")
+  verifiedBy String?   @map("verified_by") @db.Uuid
+  verifiedAt DateTime? @map("verified_at")
+
+  submittedAt DateTime @default(now()) @map("submitted_at")
+  metadata    Json?
+
+  dispute   Dispute @relation(fields: [disputeId], references: [id], onDelete: Cascade)
+  submitter User    @relation(fields: [submittedBy], references: [id])
+  witness   User?   @relation("DisputeEvidenceWitness", fields: [witnessUserId], references: [id])
+  verifier  User?   @relation("DisputeEvidenceVerifier", fields: [verifiedBy], references: [id])
+
+  @@index([disputeId])
+  @@index([submittedBy])
+  @@index([evidenceType])
+  @@map("dispute_evidence")
+}
+
+model MediationSession {
+  id        String @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  disputeId String @map("dispute_id") @db.Uuid
+
+  elderId String @map("elder_id") @db.Uuid
+
+  scheduledAt     DateTime @map("scheduled_at")
+  durationMinutes Int?     @map("duration_minutes")
+
+  complainantAttended Boolean @default(false) @map("complainant_attended")
+  respondentAttended  Boolean @default(false) @map("respondent_attended")
+
+  videoCallUrl          String? @map("video_call_url")
+  recordingUrl          String? @map("recording_url")
+  recordingConsentGiven Boolean @default(false) @map("recording_consent_given")
+
+  elderNotes     String? @map("elder_notes")
+  sessionSummary String? @map("session_summary")
+
+  keyPoints Json? @map("key_points")
+
+  status MediationSessionStatus @default(scheduled)
+
+  cancellationReason String? @map("cancellation_reason")
+
+  startedAt DateTime? @map("started_at")
+  endedAt   DateTime? @map("ended_at")
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  dispute Dispute @relation(fields: [disputeId], references: [id], onDelete: Cascade)
+  elder   Elder   @relation(fields: [elderId], references: [userId])
+
+  @@index([disputeId])
+  @@index([elderId])
+  @@index([scheduledAt])
+  @@map("mediation_sessions")
+}
+
+model DisputeRuling {
+  id        String @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  disputeId String @map("dispute_id") @db.Uuid
+  elderId   String @map("elder_id") @db.Uuid
+
+  rulingSummary     String @map("ruling_summary")
+  detailedReasoning String @map("detailed_reasoning")
+
+  decision DisputeRulingDecision @map("decision")
+
+  actionsRequired Json? @map("actions_required")
+
+  penalties Json?
+
+  isPrecedentSetting Boolean @default(false) @map("is_precedent_setting")
+  precedentCategory  String? @map("precedent_category") @db.VarChar(100)
+
+  complianceDeadline DateTime? @map("compliance_deadline") @db.Date
+
+  appealAllowed  Boolean   @default(true) @map("appeal_allowed")
+  appealDeadline DateTime? @map("appeal_deadline") @db.Date
+
+  status DisputeRulingStatus @default(issued)
+
+  issuedAt DateTime @default(now()) @map("issued_at")
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  dispute            Dispute         @relation(fields: [disputeId], references: [id], onDelete: Cascade)
+  elder              Elder           @relation(fields: [elderId], references: [userId])
+  appeals            DisputeAppeal[]
+  newRulingForAppeal DisputeAppeal[] @relation("AppealNewRuling")
+
+  @@index([disputeId])
+  @@index([elderId])
+  @@index([decision])
+  @@index([isPrecedentSetting])
+  @@map("dispute_rulings")
+}
+
+model DisputeAppeal {
+  id               String @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  disputeId        String @map("dispute_id") @db.Uuid
+  originalRulingId String @map("original_ruling_id") @db.Uuid
+
+  appealingParty String @map("appealing_party") @db.Uuid
+
+  appealGrounds DisputeAppealGrounds @map("appeal_grounds")
+
+  appealStatement String @map("appeal_statement")
+
+  newEvidenceIds String[] @map("new_evidence_ids")
+
+  appealFeePaid          Decimal @default(25.00) @map("appeal_fee_paid") @db.Decimal(5, 2)
+  appealFeeTransactionId String? @map("appeal_fee_transaction_id") @db.Uuid
+
+  reviewElderId String? @map("review_elder_id") @db.Uuid
+
+  assignedAt DateTime? @map("assigned_at")
+
+  appealDecision DisputeAppealDecision? @map("appeal_decision")
+
+  decisionReasoning String? @map("decision_reasoning")
+
+  newRulingId String? @map("new_ruling_id") @db.Uuid
+
+  feeRefunded   Boolean   @default(false) @map("fee_refunded")
+  feeRefundedAt DateTime? @map("fee_refunded_at")
+
+  status DisputeAppealStatus @default(filed)
+
+  filedAt   DateTime  @default(now()) @map("filed_at")
+  decidedAt DateTime? @map("decided_at")
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  dispute        Dispute        @relation(fields: [disputeId], references: [id], onDelete: Cascade)
+  originalRuling DisputeRuling  @relation(fields: [originalRulingId], references: [id])
+  appealingUser  User           @relation("DisputeAppealAppealingParty", fields: [appealingParty], references: [id])
+  reviewElder    Elder?         @relation("DisputeAppealReviewElder", fields: [reviewElderId], references: [userId])
+  newRuling      DisputeRuling? @relation("AppealNewRuling", fields: [newRulingId], references: [id])
+
+  @@index([disputeId])
+  @@index([originalRulingId])
+  @@index([appealingParty])
+  @@index([reviewElderId])
+  @@index([status])
+  @@map("dispute_appeals")
+}
+
+// =====================================================
+// SOCIAL & COMMUNITY TABLES
+// =====================================================
+
+model Conversation {
+  id String @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+
+  user1Id String @map("user_1_id") @db.Uuid
+  user2Id String @map("user_2_id") @db.Uuid
+
+  lastMessageId String?   @map("last_message_id") @db.Uuid
+  lastMessageAt DateTime? @map("last_message_at")
+
+  user1UnreadCount Int @default(0) @map("user_1_unread_count")
+  user2UnreadCount Int @default(0) @map("user_2_unread_count")
+
+  user1Muted Boolean @default(false) @map("user_1_muted")
+  user2Muted Boolean @default(false) @map("user_2_muted")
+
+  user1Archived Boolean @default(false) @map("user_1_archived")
+  user2Archived Boolean @default(false) @map("user_2_archived")
+
+  user1BlockedUser2 Boolean @default(false) @map("user_1_blocked_user_2")
+  user2BlockedUser1 Boolean @default(false) @map("user_2_blocked_user_1")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+
+  user1    User      @relation("User1", fields: [user1Id], references: [id], onDelete: Cascade)
+  user2    User      @relation("User2", fields: [user2Id], references: [id], onDelete: Cascade)
+  messages Message[]
+
+  @@unique([user1Id, user2Id])
+  @@index([user1Id, updatedAt(sort: Desc)])
+  @@index([user2Id, updatedAt(sort: Desc)])
+  @@index([lastMessageAt(sort: Desc)])
+  @@map("conversations")
+}
+
+model Message {
+  id String @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+
+  conversationId String @map("conversation_id") @db.Uuid
+
+  senderId String @map("sender_id") @db.Uuid
+
+  messageType MessageType @default(text) @map("message_type")
+
+  content String?
+
+  mediaUrl          String? @map("media_url")
+  mediaType         String? @map("media_type") @db.VarChar(50)
+  mediaSizeBytes    Int?    @map("media_size_bytes")
+  mediaThumbnailUrl String? @map("media_thumbnail_url")
+
+  durationSeconds Int?    @map("duration_seconds")
+  transcript      String?
+
+  replyToMessageId String? @map("reply_to_message_id") @db.Uuid
+
+  isDeleted           Boolean   @default(false) @map("is_deleted")
+  deletedAt           DateTime? @map("deleted_at")
+  deletedForSender    Boolean   @default(false) @map("deleted_for_sender")
+  deletedForRecipient Boolean   @default(false) @map("deleted_for_recipient")
+
+  isEdited Boolean   @default(false) @map("is_edited")
+  editedAt DateTime? @map("edited_at")
+
+  isRead Boolean   @default(false) @map("is_read")
+  readAt DateTime? @map("read_at")
+
+  reactions Json @default("[]")
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  sender         User         @relation("MessageSender", fields: [senderId], references: [id])
+  replyToMessage Message?     @relation("MessageReply", fields: [replyToMessageId], references: [id])
+  replies        Message[]    @relation("MessageReply")
+
+  @@index([conversationId, createdAt(sort: Desc)])
+  @@index([senderId])
+  @@index([isRead])
+  @@map("messages")
+}
+
+model Post {
+  id     String @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  userId String @map("user_id") @db.Uuid
+
+  content String
+
+  mediaUrls  String[] @map("media_urls")
+  mediaTypes String[] @map("media_types")
+
+  taggedUsers    String[] @map("tagged_users")
+  taggedCircleId String?  @map("tagged_circle_id") @db.Uuid
+  taggedGoalId   String?  @map("tagged_goal_id") @db.Uuid
+
+  postType PostType @default(general) @map("post_type")
+
+  visibility PostVisibility @default(friends)
+
+  likeCount    Int @default(0) @map("like_count")
+  commentCount Int @default(0) @map("comment_count")
+  shareCount   Int @default(0) @map("share_count")
+
+  isDeleted Boolean   @default(false) @map("is_deleted")
+  deletedAt DateTime? @map("deleted_at")
+
+  isEdited Boolean   @default(false) @map("is_edited")
+  editedAt DateTime? @map("edited_at")
+
+  isFlagged     Boolean @default(false) @map("is_flagged")
+  flaggedReason String? @map("flagged_reason")
+
+  isHidden     Boolean @default(false) @map("is_hidden")
+  hiddenBy     String? @map("hidden_by") @db.Uuid
+  hiddenReason String? @map("hidden_reason")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+
+  user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  taggedCircle Circle?    @relation(fields: [taggedCircleId], references: [id])
+  taggedGoal   Goal?      @relation(fields: [taggedGoalId], references: [id])
+  hider        User?      @relation("PostHider", fields: [hiddenBy], references: [id])
+  comments     Comment[]
+  reactions    Reaction[] @relation("PostReactions")
+
+  @@index([userId, createdAt(sort: Desc)])
+  @@index([createdAt(sort: Desc)])
+  @@index([visibility])
+  @@index([postType])
+  @@index([taggedUsers], type: Gin)
+  @@map("posts")
+}
+
+model Comment {
+  id     String @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  postId String @map("post_id") @db.Uuid
+  userId String @map("user_id") @db.Uuid
+
+  content String
+
+  parentCommentId String? @map("parent_comment_id") @db.Uuid
+
+  likeCount  Int @default(0) @map("like_count")
+  replyCount Int @default(0) @map("reply_count")
+
+  isDeleted Boolean   @default(false) @map("is_deleted")
+  deletedAt DateTime? @map("deleted_at")
+
+  isEdited Boolean   @default(false) @map("is_edited")
+  editedAt DateTime? @map("edited_at")
+
+  isFlagged Boolean @default(false) @map("is_flagged")
+  isHidden  Boolean @default(false) @map("is_hidden")
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  post          Post       @relation(fields: [postId], references: [id], onDelete: Cascade)
+  user          User       @relation(fields: [userId], references: [id])
+  parentComment Comment?   @relation("CommentReply", fields: [parentCommentId], references: [id])
+  replies       Comment[]  @relation("CommentReply")
+  reactions     Reaction[] @relation("CommentReactions")
+
+  @@index([postId, createdAt])
+  @@index([userId])
+  @@index([parentCommentId])
+  @@map("comments")
+}
+
+model Reaction {
+  id     String @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  userId String @map("user_id") @db.Uuid
+
+  postId    String? @map("post_id") @db.Uuid
+  commentId String? @map("comment_id") @db.Uuid
+
+  reactionType ReactionType @default(like) @map("reaction_type")
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  post    Post?    @relation("PostReactions", fields: [postId], references: [id], onDelete: Cascade)
+  comment Comment? @relation("CommentReactions", fields: [commentId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, postId, commentId])
+  @@index([userId])
+  @@index([postId])
+  @@index([commentId])
+  @@map("reactions")
+}
+
+// =====================================================
+// PRIVACY SYSTEM TABLES
+// =====================================================
+
+model PrivacySetting {
+  userId String @id @map("user_id") @db.Uuid
+
+  profilePhotoVisibility PrivacyVisibility @default(friends) @map("profile_photo_visibility")
+  realNameVisibility     PrivacyVisibility @default(friends) @map("real_name_visibility")
+  locationVisibility     PrivacyVisibility @default(city_only) @map("location_visibility")
+  bioVisibility          PrivacyVisibility @default(friends) @map("bio_visibility")
+  contactInfoVisibility  PrivacyVisibility @default(no_one) @map("contact_info_visibility")
+
+  xnscoreVisibility  PrivacyVisibility @default(circles) @map("xnscore_visibility")
+  xnscoreDisplayMode String            @default("exact") @map("xnscore_display_mode") @db.VarChar(20)
+
+  searchableByPhone    Boolean @default(true) @map("searchable_by_phone")
+  searchableByEmail    Boolean @default(true) @map("searchable_by_email")
+  searchableByName     Boolean @default(true) @map("searchable_by_name")
+  searchableByLocation Boolean @default(false) @map("searchable_by_location")
+
+  appearInDirectory             Boolean @default(true) @map("appear_in_directory")
+  appearInSuggestions           Boolean @default(true) @map("appear_in_suggestions")
+  appearInCircleRecommendations Boolean @default(true) @map("appear_in_circle_recommendations")
+
+  stealthMode Boolean @default(false) @map("stealth_mode")
+
+  showGoalsExistence   Boolean @default(false) @map("show_goals_existence")
+  showGoalProgress     Boolean @default(false) @map("show_goal_progress")
+  showGoalAmounts      Boolean @default(false) @map("show_goal_amounts")
+  showGoalAchievements Boolean @default(false) @map("show_goal_achievements")
+  showSavingsTotals    Boolean @default(false) @map("show_savings_totals")
+
+  showCircles                Boolean @default(true) @map("show_circles")
+  showCircleCountOnly        Boolean @default(false) @map("show_circle_count_only")
+  showCircleCompletionBadges Boolean @default(true) @map("show_circle_completion_badges")
+
+  circleMemberView String @default("full") @map("circle_member_view") @db.VarChar(20)
+
+  showPaymentNotifications Boolean @default(false) @map("show_payment_notifications")
+  showPayoutNotifications  Boolean @default(false) @map("show_payout_notifications")
+  showDepositActivities    Boolean @default(false) @map("show_deposit_activities")
+  showWithdrawalActivities Boolean @default(false) @map("show_withdrawal_activities")
+
+  hideFinancialAchievements   Boolean @default(true) @map("hide_financial_achievements")
+  hideFromLeaderboards        Boolean @default(true) @map("hide_from_leaderboards")
+  disableTopSaverBadges       Boolean @default(true) @map("disable_top_saver_badges")
+  privateModeAllGoals         Boolean @default(true) @map("private_mode_all_goals")
+  anonymousInHighValueCircles Boolean @default(true) @map("anonymous_in_high_value_circles")
+
+  postsVisibility    PrivacyVisibility @default(friends) @map("posts_visibility")
+  commentsVisibility PrivacyVisibility @default(friends) @map("comments_visibility")
+  likesVisibility    PrivacyVisibility @default(friends) @map("likes_visibility")
+
+  whoCanMessage       PrivacyVisibility @default(friends) @map("who_can_message")
+  whoCanTag           PrivacyVisibility @default(friends) @map("who_can_tag")
+  requirePostApproval Boolean           @default(false) @map("require_post_approval")
+
+  friendsListVisibility PrivacyVisibility @default(friends) @map("friends_list_visibility")
+  showMutualFriends     Boolean           @default(true) @map("show_mutual_friends")
+  hideFriendCount       Boolean           @default(false) @map("hide_friend_count")
+
+  connectionRequestsFrom String @default("anyone") @map("connection_requests_from") @db.VarChar(50)
+
+  allowAnalytics         Boolean @default(true) @map("allow_analytics")
+  allowPersonalization   Boolean @default(true) @map("allow_personalization")
+  allowThirdPartySharing Boolean @default(false) @map("allow_third_party_sharing")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("privacy_settings")
+}
+
+model PrivacyLog {
+  id     String @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  userId String @map("user_id") @db.Uuid
+
+  settingName String  @map("setting_name") @db.VarChar(100)
+  oldValue    String? @map("old_value")
+  newValue    String? @map("new_value")
+
+  changedFromDevice String? @map("changed_from_device") @db.VarChar(50)
+  ipAddress         String? @map("ip_address") @db.Inet
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt(sort: Desc)])
+  @@index([settingName])
+  @@map("privacy_logs")
+}
+
+model ProfileView {
+  id String @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+
+  profileUserId String  @map("profile_user_id") @db.Uuid
+  viewerUserId  String? @map("viewer_user_id") @db.Uuid
+
+  viewerIp        String? @map("viewer_ip") @db.Inet
+  viewerUserAgent String? @map("viewer_user_agent")
+
+  viewSource String? @map("view_source") @db.VarChar(50)
+
+  viewedAt DateTime @default(now()) @map("viewed_at")
+
+  profileUser User  @relation("ViewedUser", fields: [profileUserId], references: [id], onDelete: Cascade)
+  viewerUser  User? @relation("Viewer", fields: [viewerUserId], references: [id], onDelete: Cascade)
+
+  @@index([profileUserId, viewedAt(sort: Desc)])
+  @@index([viewerUserId])
+  @@map("profile_views")
+}
+
+// =====================================================
+// ADMIN & ANALYTICS TABLES
+// =====================================================
+
+model AuditLog {
+  id String @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+
+  userId      String? @map("user_id") @db.Uuid
+  adminUserId String? @map("admin_user_id") @db.Uuid
+
+  action         String  @db.VarChar(100)
+  actionCategory String? @map("action_category") @db.VarChar(50)
+
+  entityType String? @map("entity_type") @db.VarChar(50)
+  entityId   String? @map("entity_id") @db.Uuid
+
+  description String?
+
+  changes Json?
+
+  ipAddress String? @map("ip_address") @db.Inet
+  userAgent String? @map("user_agent")
+
+  severity String @default("info") @db.VarChar(20)
+
+  metadata Json?
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user      User? @relation(fields: [userId], references: [id])
+  adminUser User? @relation("AuditLogAdmin", fields: [adminUserId], references: [id])
+
+  @@index([userId, createdAt(sort: Desc)])
+  @@index([adminUserId, createdAt(sort: Desc)])
+  @@index([action])
+  @@index([entityType, entityId])
+  @@index([severity])
+  @@index([createdAt(sort: Desc)])
+  @@map("audit_logs")
+}
+
+model Notification {
+  id     String @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  userId String @map("user_id") @db.Uuid
+
+  notificationType NotificationType @map("notification_type")
+
+  title String @db.VarChar(255)
+  body  String
+
+  relatedEntityType String? @map("related_entity_type") @db.VarChar(50)
+  relatedEntityId   String? @map("related_entity_id") @db.Uuid
+
+  actionUrl   String? @map("action_url")
+  actionLabel String? @map("action_label") @db.VarChar(100)
+
+  priority NotificationPriority @default(normal)
+
+  isRead Boolean   @default(false) @map("is_read")
+  readAt DateTime? @map("read_at")
+
+  isDismissed Boolean   @default(false) @map("is_dismissed")
+  dismissedAt DateTime? @map("dismissed_at")
+
+  sentPush  Boolean @default(false) @map("sent_push")
+  sentEmail Boolean @default(false) @map("sent_email")
+  sentSms   Boolean @default(false) @map("sent_sms")
+
+  pushSentAt  DateTime? @map("push_sent_at")
+  emailSentAt DateTime? @map("email_sent_at")
+  smsSentAt   DateTime? @map("sms_sent_at")
+
+  metadata Json?
+
+  createdAt DateTime  @default(now()) @map("created_at")
+  expiresAt DateTime? @map("expires_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt(sort: Desc)])
+  @@index([userId, isRead])
+  @@index([notificationType])
+  @@index([priority])
+  @@map("notifications")
+}
+
+model SupportTicket {
+  id     String  @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  userId String? @map("user_id") @db.Uuid
+
+  subject     String @db.VarChar(255)
+  description String
+
+  category SupportTicketCategory?
+
+  priority SupportTicketPriority @default(normal)
+
+  status SupportTicketStatus @default(open)
+
+  assignedTo String? @map("assigned_to") @db.Uuid
+
+  assignedAt DateTime? @map("assigned_at")
+
+  resolution String?
+  resolvedAt DateTime? @map("resolved_at")
+  resolvedBy String?   @map("resolved_by") @db.Uuid
+
+  closedAt DateTime? @map("closed_at")
+
+  satisfactionRating   Int?    @map("satisfaction_rating")
+  satisfactionFeedback String? @map("satisfaction_feedback")
+
+  tags String[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+
+  user          User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+  assignedAgent User? @relation("SupportTicketAssigned", fields: [assignedTo], references: [id])
+  resolver      User? @relation("SupportTicketResolver", fields: [resolvedBy], references: [id])
+
+  @@index([userId])
+  @@index([assignedTo])
+  @@index([status])
+  @@index([priority])
+  @@index([createdAt(sort: Desc)])
+  @@map("support_tickets")
+}
